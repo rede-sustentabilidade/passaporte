@@ -1,21 +1,41 @@
+/**
+ * this module handles with user registration
+ */
+
+import Joi from 'joi';
+
 let userRegisterHandler = () => {
-    let sayHello = (request, reply) => {
+    /**
+     * request basics validations
+     */
+    let httpValidation = {
+        params: {
+            name: Joi.string().max(10).min(2).alphanum()
+        }
+    },
+
+    /**
+     * request handler
+     */
+    httpHandler = (request, reply) => {
         reply({
             hello: request.params.name
         });
     },
 
+    /**
+     * hapi route register
+     */
     register = (server, options, next) => {
         server.route({
             method: 'GET',
             path: '/hello/{name}',
-            handler: sayHello
+            config: {
+                validate: httpValidation,
+                handler: httpHandler
+            }
         });
         return next();
-    };
-
-    register.attributes = {
-        name: 'api'
     };
 
     return register;
