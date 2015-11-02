@@ -1,5 +1,6 @@
 // this module handles with user registration
 import Joi from 'joi';
+import Boom from 'boom';
 import dbClient from '../utils/db';
 
 let userRegisterHandler = () => {
@@ -24,7 +25,11 @@ let userRegisterHandler = () => {
             totalUsersWithEmail = row;
         });
 
-        reply({
+        if(totalUsersWithEmail > 0) {
+            return reply(Boom.badRequest('already in use'));
+        }
+
+        return reply({
             total: totalUsersWithEmail
         });
     },
