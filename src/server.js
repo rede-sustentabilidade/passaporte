@@ -1,6 +1,6 @@
 import Hapi from 'hapi';
 import good from 'good';
-import api from './api';
+import userRegisterHandler from './api/user_register_handler';
 
 let server = new Hapi.Server(),
     serverRegisterOptions = () => {
@@ -15,7 +15,7 @@ let server = new Hapi.Server(),
                 }
             },
             {
-                register: api
+                register: userRegisterHandler
             }
         ];
     }(),
