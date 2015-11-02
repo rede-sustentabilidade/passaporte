@@ -19,7 +19,7 @@ let server = new Hapi.Server(),
             }
         ];
     }(),
-    serverErrorHandler = (err) => {
+    serverConErrorHandler = (err) => {
         if (err) {
             console.error(err);
         } else {
@@ -34,5 +34,5 @@ server.connection({
     host: '0.0.0.0'
 });
 
-server.register(serverRegisterOptions, serverErrorHandler);
+server.register(serverRegisterOptions, serverConErrorHandler);
 
