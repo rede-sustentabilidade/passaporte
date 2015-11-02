@@ -1,41 +1,49 @@
-/**
- * this module handles with user registration
- */
-
+// this module handles with user registration
 import Joi from 'joi';
+import dbClient from '../utils/db';
 
 let userRegisterHandler = () => {
-    /**
-     * request basics validations
-     */
+    // request basics validations
     let httpValidation = {
-        params: {
-            name: Joi.string().max(10).min(2).alphanum()
+        payload: {
+            email: Joi.string().email().required(),
+            password: Joi.string().min(8).required()
         }
     },
 
-    /**
-     * request handler
-     */
+    // request handler
     httpHandler = (request, reply) => {
+        let queryParameters = [request.params.email],
+            totalUsersWithEmail = 0,
+            countQuery = dbClient.query(`
+                SELECT count(1) from rs.users u
+                where lower(u.username) = lower($1);
+            `, queryParameters);
+
+        countQuery.on('row', (row) => {
+            totalUsersWithEmail = row;
+        });
+
         reply({
-            hello: request.params.name
+            total: totalUsersWithEmail
         });
     },
 
-    /**
-     * hapi route register
-     */
+    // hapi route register
     register = (server, options, next) => {
         server.route({
-            method: 'GET',
-            path: '/hello/{name}',
+            method: 'POST',
+            path: '/sign_up',
             config: {
                 validate: httpValidation,
                 handler: httpHandler
             }
         });
         return next();
+    };
+
+    register.attributes = {
+        name: 'api'
     };
 
     return register;
