@@ -2,6 +2,8 @@ Módulo API para autenticação
 ======================
 Contém endpoints com informações sobre o perfil do usuário e autenticação utilizando passaporte #rede
 
+Baseado em : https://github.com/reneweb/oauth2orize_implicit_example
+
 Dependências
 ----------------
 

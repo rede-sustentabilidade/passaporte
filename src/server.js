@@ -1,31 +1,46 @@
-import Hapi from 'hapi';
-import good from 'good';
-import api from './api';
+//Module dependencies
+var express = require('express')
+    , http = require('http')
+    , passport = require('passport')
+    , util = require('util')
+    , session = require('express-session')
+    , cookieParser = require('cookie-parser')
+    , bodyParser = require('body-parser')
+    , expressValidator = require('express-validator')
+    , auth = require("./auth")
+    , oauth = require("./oauth")
+    , registration = require("./registration")
 
-var server = new Hapi.Server();
+// Express configuration
+var app = express()
+app.set('views', __dirname + '/views')
+app.set('view engine', 'jade')
+app.use(bodyParser())
+app.use(expressValidator())
+app.use(cookieParser())
+app.use(session({ secret: 'keyboard cat1'}))
 
-server.connection({
-  port: process.env.PORT || 3000,
-  host: '0.0.0.0'
-});
+app.use(passport.initialize())
+app.use(passport.session())
 
-server.register([{
-  register: good,
-  options: {
-    reporters: [{
-      reporter: 'good-console',
-      events: {log: '*', response: '*', error: '*'}
-    }]
-  }
-}, {
-  register: api
-}], function(err) {
-  'use strict';
-  if (err) {
-    console.error(err);
-  } else {
-    server.start(function() {
-      console.log('Server started at: ' + server.info.uri); // jshint ignore:line
-    });
-  }
-});
+app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
+app.post('/client/registration', registration.registerClient)
+
+app.get('/registration', function(req, res) { res.render('userRegistration') })
+app.post('/registration', registration.registerUser)
+
+app.get('/oauth/authorization', function(req, res) { res.render('login', {clientId : req.query.clientId, redirectUri: req.query.redirectUri, responseType: req.query.responseType}) })
+app.post('/oauth/authorization', passport.authenticate('local', { failureRedirect: '/oauth/authorization' }), function(req, res) {
+    //It is not essential for the flow to redirect here, it would also be possible to call this directly
+    res.redirect('/authorization?response_type=' + req.body.responseType + '&client_id=' + req.body.clientId + '&redirect_uri=' + req.body.redirectUri)
+  })
+
+app.get('/authorization', oauth.authorization)
+app.post('/decision', oauth.decision)
+
+app.get('/restricted', passport.authenticate('accessToken', { session: false }), function (req, res) {
+    res.send("Yay, you successfully accessed the restricted resource!")
+})
+
+//Start
+http.createServer(app).listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0")

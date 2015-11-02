@@ -20,7 +20,6 @@
     "babel": "^5.1.13",
     "code": "^1.4.0",
     "del": "^1.1.1",
-    "good-console": "^5.0.0",
     "gulp": "^3.8.11",
     "gulp-babel": "^5.1.0",
     "gulp-cached": "^1.0.4",
@@ -31,7 +30,19 @@
     "lab-babel": "^1.0.0"
   },
   "dependencies": {
-    "good": "^6.1.2",
-    "hapi": "^8.4.0"
+    "express": "4.x.x",
+    "express-validator": "2.x.x",
+    "cookie-parser": "1.x.x",
+    "express-session": "1.x.x",
+    "jade": "1.x.x",
+    "body-parser": "1.x.x",
+    "mongojs": "0.x.x",
+    "oauth2orize": "1.x.x",
+    "passport": "0.2.x",
+    "passport-local": "1.x.x",
+    "passport-http-bearer": "1.x.x",
+    "passport-http": "0.2.x",
+    "passport-oauth2-client-password": "0.1.x",
+    "bcrypt": "0.7.x"
   }
 }
