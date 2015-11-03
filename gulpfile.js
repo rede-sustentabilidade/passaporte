@@ -2,13 +2,19 @@ var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 
 // Transpile ES6 source files into JavaScript
-gulp.task('build', function() {
+gulp.task('build', ['views'], function() {
   'use strict';
 
   return gulp.src(['src/**/*.js'])
     .pipe($.cached('*.js'))
     .pipe($.babel())
     .pipe(gulp.dest('dist/'));
+});
+
+gulp.task('views', function() {
+  'use strict';
+  return gulp.src(['src/views/**/*.jade'])
+    .pipe(gulp.dest('dist/views/'));
 });
 
 // Run Hapi server and realod on changes
