@@ -1,6 +1,6 @@
 var oauth2orize = require('oauth2orize')
     , passport = require('passport')
-    , db = require('./db').db()
+    , db = require('./db')
     , crypto = require('crypto')
     , utils = require("./utils")
     , bcrypt = require('bcrypt')
@@ -25,7 +25,7 @@ server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
     var token = utils.uid(256)
     var tokenHash = crypto.createHash('sha1').update(token).digest('hex')
     var expirationDate = new Date(new Date().getTime() + (3600 * 1000))
-    
+
     db.collection('accessTokens').save({token: tokenHash, expirationDate: expirationDate, userId: user.username, clientId: client.clienId}, function(err) {
         if (err) return done(err)
         return done(null, token, {expires_in: expirationDate.toISOString()})

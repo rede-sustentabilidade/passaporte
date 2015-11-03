@@ -1,7 +1,14 @@
-var mongojs = require('mongojs')
+// this module handles with database connection
+import pg from "pg";
 
-var db = mongojs('oauth2orize_implicit_example')
+let dbClient = () => {
+    let uri = process.env.DATABASE_URL,
+        client = new pg.Client(uri);
 
-exports.db = function() {
-    return db
-}
+    client.connect();
+
+    return client;
+}();
+
+export default dbClient;
+

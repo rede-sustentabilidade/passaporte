@@ -1,4 +1,4 @@
-var db = require('./db').db()
+var db = require('./db')
     , utils = require("./utils")
     , bcrypt = require('bcrypt')
 
@@ -10,20 +10,28 @@ exports.registerUser = function(req, res) {
     if (errors) {
         res.status(400).send(errors)
     } else {
-        var username = req.body['username']
-        var password = req.body['password']
+        let username = req.body['username'],
+        	password = req.body['password'],
+			countQuery = db.query(`
+                SELECT count(1) from rs.users u
+                where lower(u.username) = lower($1);
+            `, [username]);
 
-        db.collection('users').findOne({username: username}, function (err, user) {
-            if(user) {
+        countQuery.on('row', (row) => {
+            if(parseInt(row.count) > 0) {
                 res.send("Username is already taken").status(422)
             } else {
-                bcrypt.hash(password, 11, function (err, hash) {
-                    db.collection('users').save({username: username, password: hash}, function (err) {
-                        res.status(201).send({username: username})
-                    })
-                })
+			console.log(row)
+                bcrypt.genSalt(10, (saltError, salt) => {
+                    bcrypt.hash(password, salt, (hashError, hash) => {
+                        db.query(`
+						INSERT INTO rs.users(username, password) VALUES ($1, $2)
+                    	`, [username, hash]);
+                		res.status(201).send({username: username})
+                    });
+                });
             }
-        })
+        });
     }
 }
 
