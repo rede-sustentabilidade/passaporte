@@ -4,7 +4,7 @@
   "description": "Another boring Hapi.js boilerplate written on ES6",
   "main": "server.js",
   "scripts": {
-	"start": "./node_modules/gulp/bin/gulp.js serve",
+    "start": "./node_modules/gulp/bin/gulp.js serve",
     "test": "lab -t 100 -T node_modules/lab-babel test",
     "prepublish": "gulp build"
   },
@@ -30,19 +30,19 @@
     "lab-babel": "^1.0.0"
   },
   "dependencies": {
-    "express": "4.x.x",
-    "express-validator": "2.x.x",
-    "cookie-parser": "1.x.x",
-    "express-session": "1.x.x",
-    "jade": "1.x.x",
+    "bcrypt": "^0.8.5",
     "body-parser": "1.x.x",
+    "cookie-parser": "1.x.x",
+    "express": "4.x.x",
+    "express-session": "1.x.x",
+    "express-validator": "2.x.x",
+    "jade": "1.x.x",
     "mongojs": "0.x.x",
     "oauth2orize": "1.x.x",
     "passport": "0.2.x",
-    "passport-local": "1.x.x",
-    "passport-http-bearer": "1.x.x",
     "passport-http": "0.2.x",
-    "passport-oauth2-client-password": "0.1.x",
-    "bcrypt": "0.7.x"
+    "passport-http-bearer": "1.x.x",
+    "passport-local": "1.x.x",
+    "passport-oauth2-client-password": "0.1.x"
   }
 }

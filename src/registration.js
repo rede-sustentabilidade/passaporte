@@ -6,20 +6,20 @@ exports.registerUser = function(req, res) {
     req.checkBody('username', 'No valid username is given').notEmpty().len(3, 40)
     req.checkBody('password', 'No valid password is given').notEmpty().len(6, 50)
 
-    var errors = req.validationErrors()
+	var errors = req.validationErrors()
     if (errors) {
-        res.send(errors, 400)
+        res.status(400).send(errors)
     } else {
         var username = req.body['username']
         var password = req.body['password']
 
         db.collection('users').findOne({username: username}, function (err, user) {
             if(user) {
-                res.send("Username is already taken", 422)
+                res.send("Username is already taken").status(422)
             } else {
                 bcrypt.hash(password, 11, function (err, hash) {
                     db.collection('users').save({username: username, password: hash}, function (err) {
-                        res.send({username: username}, 201)
+                        res.status(201).send({username: username})
                     })
                 })
             }
@@ -32,7 +32,7 @@ exports.registerClient = function(req, res) {
 
     var errors = req.validationErrors()
     if (errors) {
-        res.send(errors, 400)
+        res.send(errors).status(400)
     } else {
         var name = req.body['name']
         var clientId = utils.uid(8)
@@ -40,10 +40,10 @@ exports.registerClient = function(req, res) {
 
         db.collection('clients').findOne({name: name}, function (err, client) {
             if(client) {
-                res.send("Name is already taken", 422)
+                res.send("Name is already taken").status(422)
             } else {
                 db.collection('clients').save({name: name, clientId: clientId, clientSecret: clientSecret}, function (err) {
-                    res.send({name: name, clientId: clientId, clientSecret: clientSecret}, 201)
+                    res.send({name: name, clientId: clientId, clientSecret: clientSecret}).status(201)
                 })
             }
         })
