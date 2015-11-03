@@ -21,7 +21,6 @@ exports.registerUser = function(req, res) {
             if(parseInt(row.count) > 0) {
                 res.send("Username is already taken").status(422)
             } else {
-			console.log(row)
                 bcrypt.genSalt(10, (saltError, salt) => {
                     bcrypt.hash(password, salt, (hashError, hash) => {
                         db.query(`
@@ -37,23 +36,30 @@ exports.registerUser = function(req, res) {
 
 exports.registerClient = function(req, res) {
     req.checkBody('name', 'No valid name is given').notEmpty().len(3, 40)
+	req.checkBody('redirect_uri', 'Invalid url').isURL()
 
     var errors = req.validationErrors()
     if (errors) {
         res.send(errors).status(400)
     } else {
-        var name = req.body['name']
-        var clientId = utils.uid(8)
-        var clientSecret = utils.uid(20)
+        let name = req.body['name'],
+			redirect_uri = req.body['redirect_uri'],
+        	client_id = utils.uid(8),
+        	client_secret = utils.uid(20),
+			countQuery = db.query(`
+                SELECT count(1) from rs.oauth_clients oc
+                where lower(oc.name) = lower($1);
+            `, [name]);
 
-        db.collection('clients').findOne({name: name}, function (err, client) {
-            if(client) {
+        countQuery.on('row', (row) => {
+            if(parseInt(row.count) > 0) {
                 res.send("Name is already taken").status(422)
             } else {
-                db.collection('clients').save({name: name, clientId: clientId, clientSecret: clientSecret}, function (err) {
-                    res.send({name: name, clientId: clientId, clientSecret: clientSecret}).status(201)
-                })
+				db.query(`
+				INSERT INTO rs.oauth_clients(name, client_id, client_secret, redirect_uri) VALUES ($1, $2, $3, $4)
+				`, [name, client_id, client_secret, redirect_uri]);
+				res.status(201).send({name: name, client_id: client_id, client_secret: client_secret})
             }
-        })
+        });
     }
 }
