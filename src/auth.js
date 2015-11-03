@@ -16,14 +16,21 @@ var passport = require('passport')
 */
 passport.use(new LocalStrategy(
     function(username, password, done) {
-        db.collection('users').findOne({username: username}, function(err, user) {
-            if (err) { return done(err); }
-            if (!user) { return done(null, false); }
-            bcrypt.compare(password, user.password, function (err, res) {
-                if (!res) return done(null, false)
-                return done(null, user)
-            })
-        })
+		let query = db.query(`
+			SELECT u.id, u.username, u.password from rs.users u
+			where lower(u.username) = lower($1);
+		`, [username]);
+		query.on('error', done)
+		query.on('row', (row) => {
+			if(parseInt(row.length) < 0) {
+				return done(null, false);
+			} else {
+				bcrypt.compare(password, row.password, function (err, res) {
+					if (!res) return done(null, false)
+					return done(null, row)
+				})
+			}
+		})
     }
 ))
 
@@ -32,8 +39,18 @@ passport.serializeUser(function(user, done) {
 })
 
 passport.deserializeUser(function(id, done) {
-    db.collection('users').findOne({username: id}, function (err, user) {
-        done(err, user);
+	let query = db.query(`
+		SELECT u.id, u.username from rs.users u
+		where u.username = $1;
+	`, [id]);
+
+	query.on('error', done);
+	query.on('row', (row) => {
+		if(parseInt(row.lenght) < 1) {
+			done(null, false)
+		} else {
+			done(null, row)
+		}
     })
 })
 

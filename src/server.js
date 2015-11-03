@@ -29,10 +29,10 @@ app.post('/client/registration', registration.registerClient)
 app.get('/registration', function(req, res) { res.render('userRegistration') })
 app.post('/registration', registration.registerUser)
 
-app.get('/oauth/authorization', function(req, res) { res.render('login', {clientId : req.query.clientId, redirectUri: req.query.redirectUri, responseType: req.query.responseType}) })
+app.get('/oauth/authorization', function(req, res) { res.render('login', {client_id : req.query.client_id, redirect_uri: req.query.redirect_uri, response_type: req.query.response_type}) })
 app.post('/oauth/authorization', passport.authenticate('local', { failureRedirect: '/oauth/authorization' }), function(req, res) {
     //It is not essential for the flow to redirect here, it would also be possible to call this directly
-    res.redirect('/authorization?response_type=' + req.body.responseType + '&client_id=' + req.body.clientId + '&redirect_uri=' + req.body.redirectUri)
+    res.redirect('/authorization?response_type=' + req.body.response_type + '&client_id=' + req.body.client_id + '&redirect_uri=' + req.body.redirect_uri)
   })
 
 app.get('/authorization', oauth.authorization)
