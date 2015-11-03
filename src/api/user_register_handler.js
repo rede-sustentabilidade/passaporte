@@ -2,6 +2,7 @@
 import Joi from 'joi';
 import Boom from 'boom';
 import dbClient from '../utils/db';
+import bcrypt from 'bcrypt';
 
 let userRegisterHandler = () => {
     // request basics validations
@@ -14,23 +15,27 @@ let userRegisterHandler = () => {
 
     // request handler
     httpHandler = (request, reply) => {
-        let queryParameters = [request.params.email],
-            totalUsersWithEmail = 0,
+        let email = request.payload.email,
+            password = request.payload.password,
             countQuery = dbClient.query(`
                 SELECT count(1) from rs.users u
                 where lower(u.username) = lower($1);
-            `, queryParameters);
+            `, [email]);
 
         countQuery.on('row', (row) => {
-            totalUsersWithEmail = row;
-        });
+            if(parseInt(row.count) > 0) {
+                return reply(Boom.badRequest('already in use'));
+            } else {
+                bcrypt.genSalt(10, (saltError, salt) => {
+                    bcrypt.hash(password, salt, (hashError, hash) => {
+                        dbClient.query(`
+                        INSERT INTO rs.users(username, password) VALUES ($1, $2)
+                    `, [email, hash]);
+                    });
+                });
 
-        if(totalUsersWithEmail > 0) {
-            return reply(Boom.badRequest('already in use'));
-        }
-
-        return reply({
-            total: totalUsersWithEmail
+                return reply(row);
+            }
         });
     },
 
