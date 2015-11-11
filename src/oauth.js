@@ -43,11 +43,93 @@ server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
 		})
 }))
 
+
+
+//Register grant (used to issue authorization codes)
+// server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
+//     var code = utils.uid(16)
+//     var codeHash = crypto.createHash('sha1').update(code).digest('hex')
+
+//     db.collection('authorizationCodes').save({code: codeHash, clientId: client._id, redirectURI: redirectURI, userId: user.username}, function(err) {
+//         if (err) return done(err)
+//         done(null, code)
+//     })
+// }))
+
+//Register grant (used to issue authorization codes)
+server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
+    var code = utils.uid(16)
+    var codeHash = crypto.createHash('sha1').update(code).digest('hex'),
+		query = db.query(`
+		INSERT INTO rs.oauth_authorization_codes(code, client_id, user_id, redirect_uri)
+			VALUES ($1, $2, $3, $4);
+		`, [codeHash, client.client_id, user.id, redirectURI], (err, result) => {
+			if (err) return done(err)
+			return done(null, code)
+		})
+}))
+
+//Used to exchange authorization codes for access token
+server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, done) {
+    db.collection('authorizationCodes').findOne({code: code}, function (err, authCode) {
+        if (err) return done(err)
+        if (!authCode) return done(null, false)
+        if (client.clientId !== authCode.clientId) return done(null, false)
+        if (redirectURI !== authCode.redirectURI) return done(null, false)
+
+        db.collection('authorizationCodes').remove({code: code}, function(err) {
+            if(err) return done(err)
+            var token = utils.uid(256)
+            var refreshToken = utils.uid(256)
+            var tokenHash = crypto.createHash('sha1').update(token).digest('hex')
+            var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex')
+
+            var expirationDate = new Date(new Date().getTime() + (3600 * 1000))
+
+            db.collection('accessTokens').save({token: tokenHash, expirationDate: expirationDate, userId: authCode.userId, clientId: authCode.clientId}, function(err) {
+                if (err) return done(err)
+                db.collection('refreshTokens').save({refreshToken: refreshTokenHash, clientId: authCode.clientId, userId: authCode.userId}, function (err) {
+                    if (err) return done(err)
+                    done(null, token, refreshToken, {expires_in: expirationDate})
+                })
+            })
+        })
+    })
+}))
+
+//Refresh Token
+server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
+    var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex')
+
+    db.collection('refreshTokens').findOne({refreshToken: refreshTokenHash}, function (err, token) {
+        if (err) return done(err)
+        if (!token) return done(null, false)
+        if (client.clientId !== token.clientId) return done(null, false)
+
+        var newAccessToken = utils.uid(256)
+        var accessTokenHash = crypto.createHash('sha1').update(newAccessToken).digest('hex')
+
+        var expirationDate = new Date(new Date().getTime() + (3600 * 1000))
+
+        db.collection('accessTokens').update({userId: token.userId}, {$set: {token: accessTokenHash, scope: scope, expirationDate: expirationDate}}, function (err) {
+            if (err) return done(err)
+            done(null, newAccessToken, refreshToken, {expires_in: expirationDate})
+        })
+    })
+}))
+
 // user authorization endpoint
 exports.authorization = [
 	function(req, res, next) {
-		if (req.user) next()
-		else res.redirect('/oauth/authorization')
+		if (req.user) {
+			next()
+		} else {
+			res.redirect('/oauth/authorization?'+
+				'client_id='+req.query.client_id+
+				'&redirect_uri='+req.query.redirect_uri+
+				'&response_type='+req.query.response_type
+			)
+		}
 	},
 	server.authorization(function(client_id, redirect_uri, done) {
 		let countQuery = db.query(`
@@ -73,8 +155,15 @@ exports.authorization = [
 
 exports.decision = [
 	function(req, res, next) {
-		if (req.user) next()
-		else res.redirect('/oauth/authorization')
+		if (req.user) {
+			next()
+		} else {
+			res.redirect('/oauth/authorization?'+
+				'client_id='+req.query.client_id+
+				'&redirect_uri='+req.query.redirect_uri+
+				'&response_type='+req.query.response_type
+			)
+		}
 	},
 	server.decision()
 ]
