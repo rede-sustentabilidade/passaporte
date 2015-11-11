@@ -35,6 +35,7 @@ app.post('/oauth/authorization', passport.authenticate('local', { failureRedirec
     res.redirect('/authorization?response_type=' + req.body.response_type + '&client_id=' + req.body.client_id + '&redirect_uri=' + req.body.redirect_uri)
   })
 
+//app.post('/oauth/token', oauth.token)
 app.get('/authorization', oauth.authorization)
 app.post('/decision', oauth.decision)
 

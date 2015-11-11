@@ -62,25 +62,39 @@ passport.deserializeUser(function(id, done) {
  */
 passport.use("clientBasic", new BasicStrategy(
     function (clientId, clientSecret, done) {
-        db.collection('clients').findOne({clientId: clientId}, function (err, client) {
-            if (err) return done(err)
-            if (!client) return done(null, false)
+		let countQuery = db.query(`
+			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
+			where oc.client_id = $1;
+		`, [clientId]);
 
-            if (client.clientSecret == clientSecret) return done(null, client)
-            else return done(null, false)
-        });
+		countQuery.on('error', done);
+		countQuery.on('row', (row) => {
+			if(parseInt(row.length) < 1) {
+				return done(null, false)
+			} else if (row.client_secret == clientSecret) {
+				return done(null, row)
+			}
+			return done(null, false)
+		})
     }
 ));
 
 passport.use("clientPassword", new ClientPasswordStrategy(
     function (clientId, clientSecret, done) {
-        db.collection('clients').findOne({clientId: clientId}, function (err, client) {
-            if (err) return done(err)
-            if (!client) return done(null, false)
+		let countQuery = db.query(`
+			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
+			where oc.client_id = $1;
+		`, [clientId]);
 
-            if (client.clientSecret == clientSecret) return done(null, client)
-            else return done(null, false)
-        });
+		countQuery.on('error', done);
+		countQuery.on('row', (row) => {
+			if(parseInt(row.length) < 1) {
+				return done(null, false)
+			} else if (row.client_secret == clientSecret) {
+				return done(null, row)
+			}
+			return done(null, false)
+		})
     }
 ));
 

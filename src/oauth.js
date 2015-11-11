@@ -43,19 +43,6 @@ server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
 		})
 }))
 
-
-
-//Register grant (used to issue authorization codes)
-// server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
-//     var code = utils.uid(16)
-//     var codeHash = crypto.createHash('sha1').update(code).digest('hex')
-
-//     db.collection('authorizationCodes').save({code: codeHash, clientId: client._id, redirectURI: redirectURI, userId: user.username}, function(err) {
-//         if (err) return done(err)
-//         done(null, code)
-//     })
-// }))
-
 //Register grant (used to issue authorization codes)
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
     var code = utils.uid(16)
@@ -139,6 +126,7 @@ exports.authorization = [
 
 		countQuery.on('error', done);
 		countQuery.on('row', (row) => {
+			console.log(row);
 			if(parseInt(row.count) < 0) {
 				res.send("Client ID not found.").status(404)
 			} else {
@@ -166,4 +154,10 @@ exports.decision = [
 		}
 	},
 	server.decision()
+]
+// token endpoint
+exports.token = [
+    passport.authenticate(['clientBasic', 'clientPassword'], { session: false }),
+    server.token(),
+    server.errorHandler()
 ]
