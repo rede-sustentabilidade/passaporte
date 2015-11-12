@@ -46,7 +46,7 @@ passport.deserializeUser(function(id, done) {
 
 	query.on('error', done);
 	query.on('row', (row) => {
-		if(parseInt(row.lenght) < 1) {
+		if(Object.keys(row).length < 1) {
 			done(null, false)
 		} else {
 			done(null, row)
@@ -69,9 +69,9 @@ passport.use("clientBasic", new BasicStrategy(
 
 		countQuery.on('error', done);
 		countQuery.on('row', (row) => {
-			if(parseInt(row.length) < 1) {
+			if(Object.keys(row).length < 1) {
 				return done(null, false)
-			} else if (row.client_secret == clientSecret) {
+			} else if (row.client_secret === clientSecret) {
 				return done(null, row)
 			}
 			return done(null, false)
@@ -82,18 +82,20 @@ passport.use("clientBasic", new BasicStrategy(
 passport.use("clientPassword", new ClientPasswordStrategy(
     function (clientId, clientSecret, done) {
 		let countQuery = db.query(`
-			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
-			where oc.client_id = $1;
+			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri
+			FROM rs.oauth_clients oc
+			WHERE oc.client_id = $1;
 		`, [clientId]);
 
 		countQuery.on('error', done);
 		countQuery.on('row', (row) => {
-			if(parseInt(row.length) < 1) {
+			if(Object.keys(row).length < 1) {
 				return done(null, false)
-			} else if (row.client_secret == clientSecret) {
+			} else if (row.client_secret === clientSecret) {
 				return done(null, row)
+			} else {
+				return done(null, false)
 			}
-			return done(null, false)
 		})
     }
 ));

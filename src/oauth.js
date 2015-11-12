@@ -21,7 +21,7 @@ server.deserializeClient(function(id, done) {
 
 	countQuery.on('error', done);
 	countQuery.on('row', (row) => {
-		if(parseInt(row.length) < 1) {
+		if(Object.keys(row).length < 1) {
 			res.send("Client ID not found.").status(404)
 		} else {
 			done(null, row)
@@ -30,29 +30,29 @@ server.deserializeClient(function(id, done) {
 })
 
 //Implicit grant
-server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
-    let token = utils.uid(256),
-    	tokenHash = crypto.createHash('sha1').update(token).digest('hex'),
-    	expirationDate = new Date(new Date().getTime() + (3600 * 1000)),
-		query = db.query(`
-		INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
-			VALUES ($1, $2, $3, $4);
-		`, [tokenHash, client.client_id, user.id, expirationDate], (err, result) => {
-			if (err) return done(err)
-			return done(null, token, {expires_in: expirationDate.toISOString()})
-		})
-}))
+// server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
+//     let token = utils.uid(256),
+//     	tokenHash = crypto.createHash('sha1').update(token).digest('hex'),
+//     	expirationDate = new Date(new Date().getTime() + (3600 * 1000)),
+// 		query = db.query(`
+// 		INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
+// 			VALUES ($1, $2, $3, $4);
+// 		`, [tokenHash, client.client_id, user.id, expirationDate], (err, result) => {
+// 			if (err) return done(err)
+// 			return done(null, token, {expires_in: expirationDate.toISOString()})
+// 		})
+// }))
 
 //Register grant (used to issue authorization codes)
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
     var code = utils.uid(16)
-    var codeHash = crypto.createHash('sha1').update(code).digest('hex'),
-		query = db.query(`
+    var codeHash = crypto.createHash('sha1').update(code).digest('hex')
+	var query = db.query(`
 		INSERT INTO rs.oauth_authorization_codes(code, client_id, user_id, redirect_uri)
 			VALUES ($1, $2, $3, $4);
 		`, [codeHash, client.client_id, user.id, redirectURI], (err, result) => {
 			if (err) return done(err)
-			return done(null, code)
+			return done(null, codeHash)
 		})
 }))
 
@@ -63,38 +63,36 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 		FROM rs.oauth_authorization_codes ac
 		WHERE ac.code = $1 and ac.client_id = $2
 	`, [code, client.client_id])
-
 	search_auth_code.on('error', done)
 	search_auth_code.on('row', (row) => {
-		if(parseInt(row.length) < 1) {
+		console.log(row);
+		if(Object.keys(row).length < 1) {
 			done(null, false)
 		} else if (row.redirect_uri !== redirectURI) {
 			done(null, false)
 		}
 
-		remove_auth_code = db.query(`
-			DELETE from rs.oauth_authorization_codes WHERE code $1
+		let remove_auth_code = db.query(`
+			DELETE from rs.oauth_authorization_codes WHERE code = $1
 			`, [code], (err, result) => {
 			if (err) return done(err)
-
 			var token = utils.uid(256)
 			var refreshToken = utils.uid(256)
 			var tokenHash = crypto.createHash('sha1').update(token).digest('hex')
 			var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex')
 			var expirationDate = new Date(new Date().getTime() + (3600 * 1000))
 
-			create_token = db.query(`
+			let create_token = db.query(`
 				INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
-					VALUES ($1, $2, $3, $4, $5);
-				`, [tokenHash, client.client_id, user.id, expirationDate], (err2, result2) => {
+					VALUES ($1, $2, $3, $4);
+				`, [tokenHash, client.client_id, row.user_id, expirationDate], (err2, result2) => {
 				if (err2) return done(err2)
 
-				query3 = db.query(`
+				let query3 = db.query(`
 					INSERT INTO rs.oauth_refresh_tokens(refresh_token, client_id, user_id, expires)
-						VALUES ($1, $2, $3, $4, $5);
-					`, [refreshTokenHash, client.client_id, user.id, expirationDate], (err3, result3) => {
+						VALUES ($1, $2, $3, $4);
+					`, [refreshTokenHash, client.client_id, row.user_id, expirationDate], (err3, result3) => {
 					if (err3) return done(err3)
-
 					done(null, token, refreshToken, {expires_in: expirationDate})
 				})
 			})
@@ -105,7 +103,7 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 //Refresh Token
 server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
     var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex')
-
+console.log(client, refreshToken, scope);
     db.collection('refreshTokens').findOne({refreshToken: refreshTokenHash}, function (err, token) {
         if (err) return done(err)
         if (!token) return done(null, false)
@@ -144,7 +142,6 @@ exports.authorization = [
 
 		countQuery.on('error', done);
 		countQuery.on('row', (row) => {
-			console.log(row);
 			if(parseInt(row.count) < 0) {
 				res.send("Client ID not found.").status(404)
 			} else {
@@ -175,6 +172,9 @@ exports.decision = [
 ]
 // token endpoint
 exports.token = [
+	function(req, res, next) {
+		next()
+	},
     passport.authenticate(['clientBasic', 'clientPassword'], { session: false }),
     server.token(),
     server.errorHandler()
