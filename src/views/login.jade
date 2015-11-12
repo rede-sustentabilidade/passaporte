@@ -1,15 +1,40 @@
 extends layout
 block content
-    div
-      form(action='/oauth/authorization',method='post')
-        p
-            label(for='username') Username:
-               input(id='username', type='text',value='', name='username')
-        p
-            label(for='password') Password:
-               input(id='password', type='password',value='', name='password')
-        p
-            input(id='client_id', type='hidden',value='#{client_id}', name='client_id')
-            input(id='redirect_uri', type='hidden',value='#{redirect_uri}', name='redirect_uri')
-            input(id='response_type', type='hidden',value='#{response_type}', name='response_type')
-            input(type='submit',value='Login')
+
+	div
+		form(action='/oauth/authorization',method='post')
+			p
+				label(for='username') Username:
+					input(id='username', type='text',value='', name='username')
+			p
+				label(for='password') Password:
+					input(id='password', type='password',value='', name='password')
+			p
+				input(id='client_id', type='hidden',value='#{client_id}', name='client_id')
+				input(id='redirect_uri', type='hidden',value='#{redirect_uri}', name='redirect_uri')
+				input(id='response_type', type='hidden',value='#{response_type}', name='response_type')
+				input(type='submit',value='Login')
+
+// .ui.middle.aligned.center.aligned.grid
+//	   .column
+//		   h2.ui.teal.image.header
+//			img.image(src='assets/images/logo.png')
+//			.content
+//				| Log-in to your account
+//		   form.ui.large.form
+//		.ui.stacked.segment
+//			   .field
+//				.ui.left.icon.input
+//					i.user.icon
+//					input(type='text', name='email', placeholder='E-mail address')
+//			   .field
+//				.ui.left.icon.input
+//					i.lock.icon
+//					input(type='password', name='password', placeholder='Password')
+//			   .ui.fluid.large.teal.submit.button Login
+//		.ui.error.message
+//		.ui.message
+//			| New to us?
+//			a(href='#') Sign Up
+
+
