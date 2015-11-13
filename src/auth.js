@@ -22,7 +22,6 @@ passport.use(new LocalStrategy(
 		`, [username]);
 		query.on('error', done)
 		query.on('row', (row) => {
-			console.log(row);
 			if(parseInt(row.length) < 0) {
 				return done(null, false, {message: 'E-mail não encontrado.'});
 			} else {
