@@ -1,12 +1,15 @@
 extends layout
 block content
-    div
-      form(action='/registration',method='post')
-        p
-            label(for='username') Username: 
-               input(id='username', type='text',value='', name='username')
-        p
-            label(for='password') Password: 
-               input(id='password', type='password',value='', name='password')
-        p
-            input(type='submit',value='Sign up')
+	#login
+		img(src="/images/logo.png", alt="Logo Rede Sustentabilidade", class="pure-img")
+		div.box-center
+			form(action='/registration', method='post', class="pure-form pure-form-stacked")
+				label(for='username') E-mail
+				input(id='username', type='email',value='', name='username', class='pure-input-1', required)
+				label(for='password') Senha
+				input(id='password', type='password',value='', name='password', class='pure-input-1', required)
+				p
+				label(class="right")
+				input(type='submit',value='Registrar-se', class="pure-button pure-button-primary")
+		p
+		a(href="http://redesustentabilidade.org.br") Voltar para o site

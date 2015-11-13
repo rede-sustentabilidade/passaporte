@@ -3,7 +3,7 @@ var $ = require('gulp-load-plugins')();
 
 // Get one .styl file and render
 gulp.task('stylus', function(){
-  return gulp.src('./stylus/**/*.styl')
+  return gulp.src('./stylus/main.styl')
   .pipe($.stylus({pretty:true}))
   .pipe(gulp.dest('./public/css'));
 });

@@ -24,6 +24,7 @@ app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 6000
 app.use(passport.initialize())
 app.use(passport.session())
 
+
 app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
 app.post('/client/registration', registration.registerClient)
 
