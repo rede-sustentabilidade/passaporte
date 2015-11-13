@@ -7,8 +7,7 @@ Baseado em : https://github.com/reneweb/oauth2orize_implicit_example
 Dependências
 ----------------
 
- - Hapi.js
- - gulp
+ - Gulp
  - Lab
  - Babel
 
