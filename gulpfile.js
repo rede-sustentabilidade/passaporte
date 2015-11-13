@@ -1,6 +1,14 @@
 var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 
+// Get one .styl file and render
+gulp.task('stylus', function(){
+  return gulp.src('./stylus/**/*.styl')
+  .pipe($.stylus({pretty:true}))
+  .pipe(gulp.dest('./public/css'));
+});
+
+
 // Transpile ES6 source files into JavaScript
 gulp.task('build', ['views'], function() {
 	'use strict';
@@ -27,6 +35,8 @@ gulp.task('serve', function() {
 		},
 		ignore: ['gulpfile.js', 'node_modules', 'test']
 	});
+
+	gulp.watch('./stylus/**/*.styl', ['stylus']);
 });
 
 // Run lab tests

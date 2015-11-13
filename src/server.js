@@ -17,6 +17,7 @@ app.set('views', __dirname + '/views')
 app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())
+app.use(express.static('public'));
 //app.use(cookieParser({ path: '/',  maxAge: null }))
 app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
 
