@@ -36,7 +36,7 @@ gulp.task('serve', function() {
 		ignore: ['gulpfile.js', 'node_modules', 'test']
 	});
 
-	gulp.watch('./stylus/**/*.styl', ['stylus']);
+	// gulp.watch('./stylus/**/*.styl', ['stylus']);
 });
 
 // Run lab tests

@@ -22,11 +22,12 @@ passport.use(new LocalStrategy(
 		`, [username]);
 		query.on('error', done)
 		query.on('row', (row) => {
+			console.log(row);
 			if(parseInt(row.length) < 0) {
-				return done(null, false);
+				return done(null, false, {message: 'E-mail não encontrado.'});
 			} else {
 				bcrypt.compare(password, row.password, function (err, res) {
-					if (!res) return done(null, false)
+					if (!res) return done(null, false, {message: 'Senha não confere.'})
 					return done(null, row)
 				})
 			}

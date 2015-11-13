@@ -27,6 +27,7 @@
   "dependencies": {
     "bcrypt": "^0.8.5",
     "body-parser": "1.x.x",
+    "connect-flash": "^0.1.1",
     "cookie-parser": "1.x.x",
     "express": "4.x.x",
     "express-session": "1.x.x",
