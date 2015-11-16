@@ -10,6 +10,9 @@ var express = require('express')
     , auth = require("./auth")
     , oauth = require("./oauth")
     , registration = require("./registration")
+	, serveStatic = require('serve-static')
+	, morgan = require('morgan')
+	, cookieParser = require('cookie-parser')
 
 // Express configuration
 var app = express()
@@ -17,8 +20,9 @@ app.set('views', __dirname + '/views')
 app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())
-app.use(express.static('public'));
-//app.use(cookieParser({ path: '/',  maxAge: null }))
+app.use(serveStatic('public'))
+app.use(morgan('combined'))
+app.use(cookieParser('rede-sustentabilidade.org.br'))
 app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
 
 app.use(passport.initialize())

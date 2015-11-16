@@ -28,17 +28,19 @@
     "bcrypt": "^0.8.5",
     "body-parser": "1.x.x",
     "connect-flash": "^0.1.1",
-    "cookie-parser": "1.x.x",
+    "cookie-parser": "^1.4.0",
     "express": "4.x.x",
     "express-session": "1.x.x",
     "express-validator": "2.x.x",
     "jade": "1.x.x",
+    "morgan": "^1.6.1",
     "oauth2orize": "1.x.x",
     "passport": "0.2.x",
     "passport-http": "0.2.x",
     "passport-http-bearer": "1.x.x",
     "passport-local": "1.x.x",
     "passport-oauth2-client-password": "0.1.x",
-    "pg": "^4.4.3"
+    "pg": "^4.4.3",
+    "serve-static": "^1.10.0"
   }
 }
