@@ -1,18 +1,18 @@
-//Module dependencies
 var express = require('express')
     , passport = require('passport')
-    , util = require('util')
     , session = require('express-session')
     , cookieParser = require('cookie-parser')
     , bodyParser = require('body-parser')
     , expressValidator = require('express-validator')
-    , auth = require("./auth")
-    , oauth = require("./oauth")
-    , registration = require("./registration")
 	, serveStatic = require('serve-static')
 	, morgan = require('morgan')
 	, cookieParser = require('cookie-parser')
 	, errorHandler = require('errorhandler')
+
+    , util = require('util')
+    , auth = require("./auth")
+    , oauth = require("./oauth")
+    , registration = require("./registration")
 
 // Express configuration
 var app = express()

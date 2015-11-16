@@ -3,31 +3,30 @@ var db = require('./db')
 	, bcrypt = require('bcrypt')
 
 exports.registerUser = function(req, res) {
-	req.checkBody('username', 'No valid username is given').notEmpty().len(3, 40)
-	req.checkBody('password', 'No valid password is given').notEmpty().len(6, 50)
+	req.checkBody('email', 'E-mail inválido').notEmpty().isEmail()
 
 	var errors = req.validationErrors()
 	if (errors) {
-		res.status(400).send(errors)
+		res.render('userRegistration', {message:errors})
 	} else {
-		let username = req.body['username'],
-			password = req.body['password'],
+		let email = req.body['email'],
 			countQuery = db.query(`
 				SELECT count(1) from rs.users u
 				where lower(u.username) = lower($1);
-			`, [username]);
+			`, [email]);
 
 		countQuery.on('row', (row) => {
 			if(parseInt(row.count) > 0) {
-				res.send("Username is already taken").status(422)
+				res.render('userRegistration', {message:"E-mail já cadastrado."})
 			} else {
+				let password = Math.random().toString(36).slice(-8)
 				bcrypt.genSalt(10, (saltError, salt) => {
 					bcrypt.hash(password, salt, (hashError, hash) => {
 						db.query(`
 						INSERT INTO rs.users(username, password) VALUES ($1, $2)
-						`, [username, hash], (err, results) => {
-							if (err) return res.send(err).status(500)
-							res.status(201).send({username: username})
+						`, [email, hash], (err, results) => {
+							if (err) return res.render('userRegistration', {message:err})
+							res.render('userRegistration', {message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: " + email, message_type:"success"})
 						})
 					});
 				});
