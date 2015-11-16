@@ -61,7 +61,8 @@ app.get('/restricted', passport.authenticate('accessToken', { session: false }),
 
 // error handling middleware should be loaded after the loading the routes
 if ('development' == app.get('env')) {
-  app.use(errorHandler());
+	app.locals.url_site = 'http://herokuwp.local'
+	app.use(errorHandler())
 }
 
 app.set('port', process.env.PORT || 3000);

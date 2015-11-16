@@ -8,10 +8,11 @@ block content
 			- else if (message)
 				p.pure-alert.pure-alert-error !{message}
 			- else
-				p.pure-alert.pure-alert-warning Se já tem cadastrado, utilize o mesmo e-mail de antes e saberemos quem é você.
+				p.pure-alert.pure-alert-warning Se já tem cadastro, utilize o mesmo e-mail e saberemos quem é você.
 			form(action='/registration', method='post', class="pure-form pure-form-stacked")
 				label(for='email') E-mail
 				input(id='email', type='email',value='', name='email', class='pure-input-1', required)
 				label(class="right")
 					input(type='submit',value='Registrar-se', class="pure-button pure-button-primary")
-		a(href="http://redesustentabilidade.org.br") Voltar para o site
+		a(href="/oauth/authorization") Fazer Log In
+		a(href="#{url_site}") Voltar para o site
