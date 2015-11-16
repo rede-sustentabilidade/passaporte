@@ -29,6 +29,7 @@
     "body-parser": "1.x.x",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.0",
+    "errorhandler": "^1.4.2",
     "express": "4.x.x",
     "express-session": "1.x.x",
     "express-validator": "2.x.x",

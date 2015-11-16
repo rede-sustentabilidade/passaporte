@@ -1,6 +1,5 @@
 //Module dependencies
 var express = require('express')
-    , http = require('http')
     , passport = require('passport')
     , util = require('util')
     , session = require('express-session')
@@ -13,6 +12,7 @@ var express = require('express')
 	, serveStatic = require('serve-static')
 	, morgan = require('morgan')
 	, cookieParser = require('cookie-parser')
+	, errorHandler = require('errorhandler')
 
 // Express configuration
 var app = express()
@@ -21,13 +21,11 @@ app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())
 app.use(serveStatic('public'))
-app.use(morgan('combined'))
+app.use(morgan('dev'))
 app.use(cookieParser('rede-sustentabilidade.org.br'))
 app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
-
 app.use(passport.initialize())
 app.use(passport.session())
-
 
 app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
 app.post('/client/registration', registration.registerClient)
@@ -35,12 +33,23 @@ app.post('/client/registration', registration.registerClient)
 app.get('/registration', function(req, res) { res.render('userRegistration') })
 app.post('/registration', registration.registerUser)
 
-app.get('/oauth/authorization', function(req, res) { res.render('login', {client_id : req.query.client_id, redirect_uri: req.query.redirect_uri, response_type: req.query.response_type}) })
+app.get('/oauth/authorization', function(req, res) {
+	res.render('login', {
+		client_id : req.query.client_id,
+		redirect_uri: req.query.redirect_uri,
+		response_type: req.query.response_type
+	})
+})
 
-app.post('/oauth/authorization', passport.authenticate('local', { failureRedirect: '/oauth/authorization' }), function(req, res) {
-    //It is not essential for the flow to redirect here, it would also be possible to call this directly
-    res.redirect('/authorization?response_type=' + req.body.response_type + '&client_id=' + req.body.client_id + '&redirect_uri=' + req.body.redirect_uri)
-  })
+app.post('/oauth/authorization', passport.authenticate('local', {
+		failureRedirect: '/oauth/authorization'
+	}), function(req, res) {
+		//It is not essential for the flow to redirect here,
+		// it would also be possible to call this directly
+		res.redirect('/authorization?response_type=' + req.body.response_type +
+					 '&client_id=' + req.body.client_id +
+					 '&redirect_uri=' + req.body.redirect_uri)
+})
 
 app.post('/oauth/token', oauth.token)
 app.get('/authorization', oauth.authorization)
@@ -50,5 +59,13 @@ app.get('/restricted', passport.authenticate('accessToken', { session: false }),
     res.send("Yay, you successfully accessed the restricted resource!")
 })
 
+// error handling middleware should be loaded after the loading the routes
+if ('development' == app.get('env')) {
+  app.use(errorHandler());
+}
+
+app.set('port', process.env.PORT || 3000);
 //Start
-http.createServer(app).listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0")
+app.listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
