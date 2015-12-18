@@ -14,9 +14,7 @@ var _passport = require('passport');
 
 var _passport2 = _interopRequireDefault(_passport);
 
-var _expressSession = require('express-session');
-
-var _expressSession2 = _interopRequireDefault(_expressSession);
+//import session from 'express-session'
 
 var _cookieParser = require('cookie-parser');
 
@@ -71,7 +69,7 @@ app.use((0, _expressValidator2['default'])());
 app.use((0, _serveStatic2['default'])('public'));
 app.use((0, _morgan2['default'])('dev'));
 app.use((0, _cookieParser2['default'])('rede-sustentabilidade.org.br'));
-app.use((0, _expressSession2['default'])({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }));
+//app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
 app.use(_passport2['default'].initialize());
 app.use(_passport2['default'].session());
 app.use((0, _connectFlash2['default'])());
@@ -111,11 +109,35 @@ app.get('/restricted', _passport2['default'].authenticate('accessToken', { sessi
 	res.send("Yay, you successfully accessed the restricted resource!");
 });
 
-// error handling middleware should be loaded after the loading the routes
-if ('development' == app.get('env')) {
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+	// app.use(function(err, req, res, next) {
+	// 	res.status(err.status || 500);
+	// 	res.render('error', {
+	// 		message: err.message,
+	// 		error: err
+	// 	})
+	// })
 	app.locals.url_site = 'http://herokuwp.local';
 	app.use((0, _errorhandler2['default'])());
 }
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+	var err = new Error('Not Found');
+	err.status = 404;
+	next(err);
+});
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function (err, req, res, next) {
+	res.status(err.status || 500);
+	res.render('error', {
+		message: err.message,
+		error: {}
+	});
+});
 
 exports['default'] = app;
 module.exports = exports['default'];

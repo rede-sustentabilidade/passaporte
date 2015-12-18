@@ -1,6 +1,6 @@
 import express from 'express'
 import passport from 'passport'
-import session from 'express-session'
+//import session from 'express-session'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import expressValidator from 'express-validator'
@@ -22,7 +22,7 @@ app.use(expressValidator())
 app.use(serveStatic('public'))
 app.use(morgan('dev'))
 app.use(cookieParser('rede-sustentabilidade.org.br'))
-app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
+//app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
@@ -60,10 +60,34 @@ app.get('/restricted', passport.authenticate('accessToken', { session: false }),
     res.send("Yay, you successfully accessed the restricted resource!")
 })
 
-// error handling middleware should be loaded after the loading the routes
-if ('development' == app.get('env')) {
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+	// app.use(function(err, req, res, next) {
+	// 	res.status(err.status || 500);
+	// 	res.render('error', {
+	// 		message: err.message,
+	// 		error: err
+	// 	})
+	// })
 	app.locals.url_site = 'http://herokuwp.local'
 	app.use(errorHandler())
 }
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+	var err = new Error('Not Found');
+	err.status = 404;
+	next(err);
+});
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+	res.status(err.status || 500);
+	res.render('error', {
+		message: err.message,
+		error: {}
+	})
+})
 
 export default app
