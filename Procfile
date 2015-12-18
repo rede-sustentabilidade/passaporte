@@ -1,1 +1,1 @@
-web: ./node_modules/.bin/gulp serve
+web: node ./dist/server.js
