@@ -23,9 +23,7 @@
     "gulp-nodemon": "^2.0.2",
     "gulp-stylus": "^2.1.0",
     "lab": "^5.8.0",
-    "lab-babel": "^1.0.0"
-  },
-  "dependencies": {
+    "lab-babel": "^1.0.0",
     "bcrypt": "^0.8.5",
     "body-parser": "1.x.x",
     "connect-flash": "^0.1.1",
