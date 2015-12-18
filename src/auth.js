@@ -19,10 +19,11 @@ passport.use(new LocalStrategy(
 		let query = db.query(`
 			SELECT u.id, u.username, u.password from rs.users u
 			where lower(u.username) = lower($1);
-		`, [username]);
-		query.on('error', done)
-		query.on('row', (row) => {
-			if(parseInt(row.length) < 0) {
+		`, [username], function(err, results) {
+			if (err) { done(err) }
+
+			let row = results.rows
+			if(parseInt(row.length) < 1) {
 				return done(null, false, {message: 'E-mail não encontrado.'});
 			} else {
 				bcrypt.compare(password, row.password, function (err, res) {
@@ -30,7 +31,7 @@ passport.use(new LocalStrategy(
 					return done(null, row)
 				})
 			}
-		})
+		});
     }
 ))
 

@@ -8,7 +8,7 @@ var express = require('express')
 	, morgan = require('morgan')
 	, cookieParser = require('cookie-parser')
 	, errorHandler = require('errorhandler')
-
+	, flash = require('connect-flash')
     , util = require('util')
     , auth = require("./auth")
     , oauth = require("./oauth")
@@ -26,7 +26,7 @@ app.use(cookieParser('rede-sustentabilidade.org.br'))
 app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
 app.use(passport.initialize())
 app.use(passport.session())
-
+app.use(flash());
 app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
 app.post('/client/registration', registration.registerClient)
 
@@ -37,18 +37,20 @@ app.get('/oauth/authorization', function(req, res) {
 	res.render('login', {
 		client_id : req.query.client_id,
 		redirect_uri: req.query.redirect_uri,
-		response_type: req.query.response_type
+		response_type: req.query.response_type,
+		messages: req.flash('error')
 	})
 })
 
 app.post('/oauth/authorization', passport.authenticate('local', {
+		failureFlash: true,
 		failureRedirect: '/oauth/authorization'
 	}), function(req, res) {
 		//It is not essential for the flow to redirect here,
 		// it would also be possible to call this directly
-		res.redirect('/authorization?response_type=' + req.body.response_type +
-					 '&client_id=' + req.body.client_id +
-					 '&redirect_uri=' + req.body.redirect_uri)
+		// res.redirect('/oauth/authorization?response_type=' + req.body.response_type +
+		// 			 '&client_id=' + req.body.client_id +
+		// 			 '&redirect_uri=' + req.body.redirect_uri)
 })
 
 app.post('/oauth/token', oauth.token)

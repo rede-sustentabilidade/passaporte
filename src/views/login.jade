@@ -4,8 +4,8 @@ block content
 		img(src="/images/logo.png", alt="Logo Rede Sustentabilidade", class="pure-img")
 		div.box-center
 			form(action='/oauth/authorization',method='post', class="pure-form pure-form-stacked")
-				p.pure-alert-error
-					#{message}
+				each item in messages
+					p.pure-alert-error= item
 				label(for='username') E-mail
 				input(id='username', type='email',value='', name='username', class='pure-input-1', required)
 				label(for='password') Senha

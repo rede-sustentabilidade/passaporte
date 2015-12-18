@@ -103,7 +103,6 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 //Refresh Token
 server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
     var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex')
-console.log(client, refreshToken, scope);
     db.collection('refreshTokens').findOne({refreshToken: refreshTokenHash}, function (err, token) {
         if (err) return done(err)
         if (!token) return done(null, false)
