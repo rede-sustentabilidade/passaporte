@@ -15,7 +15,7 @@ import registration from "./registration"
 
 // Express configuration
 var app = express()
-app.set('views', __dirname + '/views')
+app.set('views', __dirname + '../views')
 app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())

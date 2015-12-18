@@ -70,7 +70,7 @@ passport.use("clientBasic", new BasicStrategy(
 			let row = result.rows[0]
 			if(Object.keys(row).length < 1) {
 				return done(null, false)
-			} else if (row.client_secret === clientSecret) {
+			} else if (row.client_secret == clientSecret) {
 				return done(null, row)
 			}
 			return done(null, false)
@@ -105,7 +105,6 @@ passport.use("clientPassword", new ClientPasswordStrategy(
  */
 passport.use("accessToken", new BearerStrategy(
     function (accessToken, done) {
-		console.log(accessToken)
 		done(null, true)
         var accessTokenHash = crypto.createHash('sha1').update(accessToken).digest('hex')
         db.collection('accessTokens').findOne({token: accessTokenHash}, function (err, token) {

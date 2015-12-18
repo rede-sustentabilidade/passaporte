@@ -65,7 +65,6 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 	`, [code, client.client_id])
 	search_auth_code.on('error', done)
 	search_auth_code.on('row', (row) => {
-		console.log(row);
 		if(Object.keys(row).length < 1) {
 			done(null, false)
 		} else if (row.redirect_uri !== redirectURI) {
@@ -134,7 +133,6 @@ exports.authorization = [
 		}
 	},
 	server.authorization(function(client_id, redirect_uri, done) {
-		console.log(client_id, redirect_uri)
 		let countQuery = db.query(`
 			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
 			where oc.client_id = $1 and oc.redirect_uri = $2;
