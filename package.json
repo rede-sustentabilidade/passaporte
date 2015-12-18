@@ -5,9 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "./node_modules/.bin/gulp serve",
-	"postinstall": "./node_modules/.bin/gulp build",
     "test": "lab -t 100 -T node_modules/lab-babel test",
-    "prepublish": "gulp build"
   },
   "author": "Lucas Pirola <lucaspirola@gmail.com>",
   "license": "GPL",
