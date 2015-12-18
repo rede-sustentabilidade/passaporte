@@ -5,6 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "./node_modules/.bin/gulp serve",
+	"postinstall": "./node_modules/.bin/gulp build",
     "test": "lab -t 100 -T node_modules/lab-babel test"
   },
   "author": "Lucas Pirola <lucaspirola@gmail.com>",
