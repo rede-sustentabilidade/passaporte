@@ -112,6 +112,7 @@ exports.authorization = [function (req, res, next) {
 		res.redirect('/oauth/authorization?' + 'client_id=' + req.query.client_id + '&redirect_uri=' + req.query.redirect_uri + '&response_type=' + req.query.response_type);
 	}
 }, server.authorization(function (client_id, redirect_uri, done) {
+	console.log(client_id, redirect_uri);
 	var countQuery = db.query('\n\t\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc\n\t\t\twhere oc.client_id = $1 and oc.redirect_uri = $2;\n\t\t', [client_id, redirect_uri], function (err, results) {
 		if (err) done(err);
 		if (results.rows.length < 0) {

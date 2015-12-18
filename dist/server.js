@@ -49,6 +49,7 @@ app.get('/oauth/authorization', function (req, res) {
 });
 
 app.post('/oauth/authorization', passport.authenticate('local', {
+	failureFlash: true,
 	failureRedirect: '/oauth/authorization'
 }), function (req, res) {
 	//It is not essential for the flow to redirect here,

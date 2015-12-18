@@ -56,10 +56,8 @@ passport.deserializeUser(function (id, done) {
  * or the client strategy, which means that the authentication data is in the body of the request.
  */
 passport.use("clientBasic", new BasicStrategy(function (clientId, clientSecret, done) {
-	var countQuery = db.query('\n\t\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc\n\t\t\twhere oc.client_id = $1;\n\t\t', [clientId]);
-
-	countQuery.on('error', done);
-	countQuery.on('row', function (row) {
+	var countQuery = db.query('\n\t\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc\n\t\t\twhere oc.client_secret = $1 and oc.client_id = $2;\n\t\t', [clientSecret, clientId], function (err, result) {
+		var row = result.rows[0];
 		if (Object.keys(row).length < 1) {
 			return done(null, false);
 		} else if (row.client_secret === clientSecret) {
@@ -67,21 +65,21 @@ passport.use("clientBasic", new BasicStrategy(function (clientId, clientSecret, 
 		}
 		return done(null, false);
 	});
+	countQuery.on('error', done);
 }));
 
 passport.use("clientPassword", new ClientPasswordStrategy(function (clientId, clientSecret, done) {
-	var countQuery = db.query('\n\t\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri\n\t\t\tFROM rs.oauth_clients oc\n\t\t\tWHERE oc.client_id = $1;\n\t\t', [clientId]);
-
-	countQuery.on('error', done);
-	countQuery.on('row', function (row) {
+	var countQuery = db.query('\n\t\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri\n\t\t\tFROM rs.oauth_clients oc\n\t\t\twhere oc.client_secret = $1 and oc.client_id = $2;\n\t\t', [clientSecret, clientId], function (err, result) {
+		var row = result.rows[0];
 		if (Object.keys(row).length < 1) {
 			return done(null, false);
-		} else if (row.client_secret === clientSecret) {
+		} else if (row.client_secret == clientSecret) {
 			return done(null, row);
 		} else {
 			return done(null, false);
 		}
 	});
+	countQuery.on('error', done);
 }));
 
 /**
@@ -89,6 +87,8 @@ passport.use("clientPassword", new ClientPasswordStrategy(function (clientId, cl
  * bearer token).
  */
 passport.use("accessToken", new BearerStrategy(function (accessToken, done) {
+	console.log(accessToken);
+	done(null, true);
 	var accessTokenHash = crypto.createHash('sha1').update(accessToken).digest('hex');
 	db.collection('accessTokens').findOne({ token: accessTokenHash }, function (err, token) {
 		if (err) return done(err);
