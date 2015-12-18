@@ -2,7 +2,7 @@
   "name": "hub-usuarios",
   "version": "0.0.1",
   "description": "HUB de usuários com cadastro, login, esqeuceu senha e clientes autorizados",
-  "main": dist/"server.js",
+  "main": "dist/server.js",
   "scripts": {
     "start": "./node_modules/.bin/gulp serve",
     "test": "lab -t 100 -T node_modules/lab-babel test"
