@@ -1,78 +1,95 @@
 'use strict';
 
-var express = require('express'),
-    passport = require('passport'),
-    session = require('express-session'),
-    cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser'),
-    expressValidator = require('express-validator'),
-    serveStatic = require('serve-static'),
-    morgan = require('morgan'),
-    cookieParser = require('cookie-parser'),
-    errorHandler = require('errorhandler'),
-    flash = require('connect-flash'),
-    util = require('util'),
-    auth = require("./auth"),
-    oauth = require("./oauth"),
-    registration = require("./registration");
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-// Express configuration
-var app = express();
-app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressValidator());
-app.use(serveStatic('public'));
-app.use(morgan('dev'));
-app.use(cookieParser('rede-sustentabilidade.org.br'));
-app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
-app.get('/client/registration', function (req, res) {
-	res.render('clientRegistration');
-});
-app.post('/client/registration', registration.registerClient);
+var _app = require('./app');
 
-app.get('/registration', function (req, res) {
-	res.render('userRegistration');
-});
-app.post('/registration', registration.registerUser);
+var _app2 = _interopRequireDefault(_app);
 
-app.get('/oauth/authorization', function (req, res) {
-	res.render('login', {
-		client_id: req.query.client_id,
-		redirect_uri: req.query.redirect_uri,
-		response_type: req.query.response_type,
-		messages: req.flash('error')
-	});
-});
+//import models from "./models"
 
-app.post('/oauth/authorization', passport.authenticate('local', {
-	failureFlash: true,
-	failureRedirect: '/oauth/authorization'
-}), function (req, res) {
-	//It is not essential for the flow to redirect here,
-	// it would also be possible to call this directly
-	res.redirect('/authorization?response_type=' + req.body.response_type + '&client_id=' + req.body.client_id + '&redirect_uri=' + req.body.redirect_uri);
-});
+var _debug = require('debug');
 
-app.post('/oauth/token', oauth.token);
-app.get('/authorization', oauth.authorization);
-app.post('/decision', oauth.decision);
+var _debug2 = _interopRequireDefault(_debug);
 
-app.get('/restricted', passport.authenticate('accessToken', { session: false }), function (req, res) {
-	res.send("Yay, you successfully accessed the restricted resource!");
-});
+var _http = require('http');
 
-// error handling middleware should be loaded after the loading the routes
-if ('development' == app.get('env')) {
-	app.locals.url_site = 'http://herokuwp.local';
-	app.use(errorHandler());
+var _http2 = _interopRequireDefault(_http);
+
+(0, _debug2['default'])('web:server');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+_app2['default'].set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = _http2['default'].createServer(_app2['default']);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+//models.sequelize.sync()
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+	var port = parseInt(val, 10);
+
+	if (isNaN(port)) {
+		// named pipe
+		return val;
+	}
+
+	if (port >= 0) {
+		// port number
+		return port;
+	}
+
+	return false;
 }
 
-app.set('port', process.env.PORT || 3000);
-//Start
-app.listen(app.get('port'), function () {
-	console.log('Express server listening on port ' + app.get('port'));
-});
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+	if (error.syscall !== 'listen') {
+		throw error;
+	}
+
+	var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+	// handle specific listen errors with friendly messages
+	switch (error.code) {
+		case 'EACCES':
+			console.error(bind + ' requires elevated privileges');
+			process.exit(1);
+			break;
+		case 'EADDRINUSE':
+			console.error(bind + ' is already in use');
+			process.exit(1);
+			break;
+		default:
+			throw error;
+	}
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+	var addr = server.address();
+	var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+	(0, _debug2['default'])('Listening on ' + bind);
+}

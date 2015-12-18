@@ -1,7 +1,7 @@
-var db = require('./db')
-	, utils = require("./utils")
-	, bcrypt = require('bcrypt')
-	, mailer = require('./mailer')
+import db from './db'
+import utils from "./utils"
+import bcrypt from 'bcrypt'
+import mailer from './mailer'
 
 exports.registerUser = function(req, res) {
 	req.checkBody('email', 'E-mail inválido').notEmpty().isEmail()

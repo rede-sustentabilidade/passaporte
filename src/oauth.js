@@ -1,9 +1,9 @@
-var oauth2orize = require('oauth2orize')
-    , passport = require('passport')
-    , db = require('./db')
-    , crypto = require('crypto')
-    , utils = require("./utils")
-    , bcrypt = require('bcrypt')
+import oauth2orize from 'oauth2orize'
+import passport from 'passport'
+import db from './db'
+import crypto from 'crypto'
+import utils from "./utils"
+import bcrypt from 'bcrypt'
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();

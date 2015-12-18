@@ -1,14 +1,14 @@
 /**
 * Module dependencies.
 */
-var passport = require('passport')
-    , LocalStrategy = require('passport-local').Strategy
-    , BasicStrategy = require('passport-http').BasicStrategy
-    , ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy
-    , BearerStrategy = require('passport-http-bearer').Strategy
-    , db = require('./db')
-    , bcrypt = require('bcrypt')
-    , crypto = require('crypto')
+import passport from 'passport'
+import {Strategy as LocalStrategy} from 'passport-local'
+import {BasicStrategy as BasicStrategy} from 'passport-http'
+import {Strategy as ClientPasswordStrategy} from 'passport-oauth2-client-password'
+import {Strategy as BearerStrategy} from 'passport-http-bearer'
+import db from './db'
+import bcrypt from 'bcrypt'
+import crypto from 'crypto'
 
 
 /**

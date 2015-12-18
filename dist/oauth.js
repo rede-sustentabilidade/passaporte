@@ -1,14 +1,33 @@
 'use strict';
 
-var oauth2orize = require('oauth2orize'),
-    passport = require('passport'),
-    db = require('./db'),
-    crypto = require('crypto'),
-    utils = require("./utils"),
-    bcrypt = require('bcrypt');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _oauth2orize = require('oauth2orize');
+
+var _oauth2orize2 = _interopRequireDefault(_oauth2orize);
+
+var _passport = require('passport');
+
+var _passport2 = _interopRequireDefault(_passport);
+
+var _db = require('./db');
+
+var _db2 = _interopRequireDefault(_db);
+
+var _crypto = require('crypto');
+
+var _crypto2 = _interopRequireDefault(_crypto);
+
+var _utils = require("./utils");
+
+var _utils2 = _interopRequireDefault(_utils);
+
+var _bcrypt = require('bcrypt');
+
+var _bcrypt2 = _interopRequireDefault(_bcrypt);
 
 // create OAuth 2.0 server
-var server = oauth2orize.createServer();
+var server = _oauth2orize2['default'].createServer();
 
 //(De-)Serialization for clients
 server.serializeClient(function (client, done) {
@@ -16,7 +35,7 @@ server.serializeClient(function (client, done) {
 });
 
 server.deserializeClient(function (id, done) {
-	var countQuery = db.query('\n\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc\n\t\twhere oc.client_id = $1;\n\t', [id]);
+	var countQuery = _db2['default'].query('\n\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc\n\t\twhere oc.client_id = $1;\n\t', [id]);
 
 	countQuery.on('error', done);
 	countQuery.on('row', function (row) {
@@ -43,18 +62,18 @@ server.deserializeClient(function (id, done) {
 // }))
 
 //Register grant (used to issue authorization codes)
-server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
-	var code = utils.uid(16);
-	var codeHash = crypto.createHash('sha1').update(code).digest('hex');
-	var query = db.query('\n\t\tINSERT INTO rs.oauth_authorization_codes(code, client_id, user_id, redirect_uri)\n\t\t\tVALUES ($1, $2, $3, $4);\n\t\t', [codeHash, client.client_id, user.id, redirectURI], function (err, result) {
+server.grant(_oauth2orize2['default'].grant.code(function (client, redirectURI, user, ares, done) {
+	var code = _utils2['default'].uid(16);
+	var codeHash = _crypto2['default'].createHash('sha1').update(code).digest('hex');
+	var query = _db2['default'].query('\n\t\tINSERT INTO rs.oauth_authorization_codes(code, client_id, user_id, redirect_uri)\n\t\t\tVALUES ($1, $2, $3, $4);\n\t\t', [codeHash, client.client_id, user.id, redirectURI], function (err, result) {
 		if (err) return done(err);
 		return done(null, codeHash);
 	});
 }));
 
 //Used to exchange authorization codes for access token
-server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, done) {
-	var search_auth_code = db.query('\n\t\tSELECT ac.code, ac.client_id, ac.user_id, ac.redirect_uri\n\t\tFROM rs.oauth_authorization_codes ac\n\t\tWHERE ac.code = $1 and ac.client_id = $2\n\t', [code, client.client_id]);
+server.exchange(_oauth2orize2['default'].exchange.code(function (client, code, redirectURI, done) {
+	var search_auth_code = _db2['default'].query('\n\t\tSELECT ac.code, ac.client_id, ac.user_id, ac.redirect_uri\n\t\tFROM rs.oauth_authorization_codes ac\n\t\tWHERE ac.code = $1 and ac.client_id = $2\n\t', [code, client.client_id]);
 	search_auth_code.on('error', done);
 	search_auth_code.on('row', function (row) {
 		console.log(row);
@@ -64,18 +83,18 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 			done(null, false);
 		}
 
-		var remove_auth_code = db.query('\n\t\t\tDELETE from rs.oauth_authorization_codes WHERE code = $1\n\t\t\t', [code], function (err, result) {
+		var remove_auth_code = _db2['default'].query('\n\t\t\tDELETE from rs.oauth_authorization_codes WHERE code = $1\n\t\t\t', [code], function (err, result) {
 			if (err) return done(err);
-			var token = utils.uid(256);
-			var refreshToken = utils.uid(256);
-			var tokenHash = crypto.createHash('sha1').update(token).digest('hex');
-			var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex');
+			var token = _utils2['default'].uid(256);
+			var refreshToken = _utils2['default'].uid(256);
+			var tokenHash = _crypto2['default'].createHash('sha1').update(token).digest('hex');
+			var refreshTokenHash = _crypto2['default'].createHash('sha1').update(refreshToken).digest('hex');
 			var expirationDate = new Date(new Date().getTime() + 3600 * 1000);
 
-			var create_token = db.query('\n\t\t\t\tINSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)\n\t\t\t\t\tVALUES ($1, $2, $3, $4);\n\t\t\t\t', [tokenHash, client.client_id, row.user_id, expirationDate], function (err2, result2) {
+			var create_token = _db2['default'].query('\n\t\t\t\tINSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)\n\t\t\t\t\tVALUES ($1, $2, $3, $4);\n\t\t\t\t', [tokenHash, client.client_id, row.user_id, expirationDate], function (err2, result2) {
 				if (err2) return done(err2);
 
-				var query3 = db.query('\n\t\t\t\t\tINSERT INTO rs.oauth_refresh_tokens(refresh_token, client_id, user_id, expires)\n\t\t\t\t\t\tVALUES ($1, $2, $3, $4);\n\t\t\t\t\t', [refreshTokenHash, client.client_id, row.user_id, expirationDate], function (err3, result3) {
+				var query3 = _db2['default'].query('\n\t\t\t\t\tINSERT INTO rs.oauth_refresh_tokens(refresh_token, client_id, user_id, expires)\n\t\t\t\t\t\tVALUES ($1, $2, $3, $4);\n\t\t\t\t\t', [refreshTokenHash, client.client_id, row.user_id, expirationDate], function (err3, result3) {
 					if (err3) return done(err3);
 					done(null, token, refreshToken, { expires_in: expirationDate });
 				});
@@ -85,19 +104,19 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 }));
 
 //Refresh Token
-server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
-	var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex');
-	db.collection('refreshTokens').findOne({ refreshToken: refreshTokenHash }, function (err, token) {
+server.exchange(_oauth2orize2['default'].exchange.refreshToken(function (client, refreshToken, scope, done) {
+	var refreshTokenHash = _crypto2['default'].createHash('sha1').update(refreshToken).digest('hex');
+	_db2['default'].collection('refreshTokens').findOne({ refreshToken: refreshTokenHash }, function (err, token) {
 		if (err) return done(err);
 		if (!token) return done(null, false);
 		if (client.clientId !== token.clientId) return done(null, false);
 
-		var newAccessToken = utils.uid(256);
-		var accessTokenHash = crypto.createHash('sha1').update(newAccessToken).digest('hex');
+		var newAccessToken = _utils2['default'].uid(256);
+		var accessTokenHash = _crypto2['default'].createHash('sha1').update(newAccessToken).digest('hex');
 
 		var expirationDate = new Date(new Date().getTime() + 3600 * 1000);
 
-		db.collection('accessTokens').update({ userId: token.userId }, { $set: { token: accessTokenHash, scope: scope, expirationDate: expirationDate } }, function (err) {
+		_db2['default'].collection('accessTokens').update({ userId: token.userId }, { $set: { token: accessTokenHash, scope: scope, expirationDate: expirationDate } }, function (err) {
 			if (err) return done(err);
 			done(null, newAccessToken, refreshToken, { expires_in: expirationDate });
 		});
@@ -113,7 +132,7 @@ exports.authorization = [function (req, res, next) {
 	}
 }, server.authorization(function (client_id, redirect_uri, done) {
 	console.log(client_id, redirect_uri);
-	var countQuery = db.query('\n\t\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc\n\t\t\twhere oc.client_id = $1 and oc.redirect_uri = $2;\n\t\t', [client_id, redirect_uri], function (err, results) {
+	var countQuery = _db2['default'].query('\n\t\t\tSELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc\n\t\t\twhere oc.client_id = $1 and oc.redirect_uri = $2;\n\t\t', [client_id, redirect_uri], function (err, results) {
 		if (err) done(err);
 		if (results.rows.length < 0) {
 			res.send("Client ID not found.").status(404);
@@ -139,4 +158,4 @@ exports.decision = [function (req, res, next) {
 // token endpoint
 exports.token = [function (req, res, next) {
 	next();
-}, passport.authenticate(['clientBasic', 'clientPassword'], { session: false }), server.token(), server.errorHandler()];
+}, _passport2['default'].authenticate(['clientBasic', 'clientPassword'], { session: false }), server.token(), server.errorHandler()];
