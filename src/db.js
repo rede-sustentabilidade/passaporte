@@ -2,7 +2,7 @@
 import pg from "pg";
 
 let dbClient = () => {
-    let uri = process.env.DATABASE_URL || "postgres://postgres@/rs-api"
+    let uri = process.env.DATABASE_URL || "postgres://postgres@/rs-api",
         client = new pg.Client(uri);
 
     client.connect();

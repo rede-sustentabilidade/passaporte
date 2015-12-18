@@ -1,6 +1,6 @@
 import express from 'express'
 import passport from 'passport'
-//import session from 'express-session'
+import session from 'express-session'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import expressValidator from 'express-validator'
@@ -22,7 +22,7 @@ app.use(expressValidator())
 app.use(serveStatic('public'))
 app.use(morgan('dev'))
 app.use(cookieParser('rede-sustentabilidade.org.br'))
-//app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
+app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
