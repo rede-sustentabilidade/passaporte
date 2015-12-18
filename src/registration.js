@@ -1,6 +1,7 @@
 var db = require('./db')
 	, utils = require("./utils")
 	, bcrypt = require('bcrypt')
+	, mailer = require('./mailer')
 
 exports.registerUser = function(req, res) {
 	req.checkBody('email', 'E-mail inválido').notEmpty().isEmail()
@@ -26,8 +27,21 @@ exports.registerUser = function(req, res) {
 						INSERT INTO rs.users(username, password) VALUES ($1, $2)
 						`, [email, hash], (err, results) => {
 							if (err) return res.render('userRegistration', {message:err})
-							res.render('userRegistration', {message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: " + email, message_type:"success"})
-						})
+
+							let m = new mailer()
+							m.send (email, 'Informações do cadastro',
+`Você iniciou o cadastro no site da Rede Sustentabilidade.
+
+A senha do seu login é: ${password}
+
+Agora você pode acessar o site da rede e autenticar-se
+https://redesustentabilidade.org.br/oauth/authorization
+`, function () {
+								res.render('userRegistration',
+									{message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: "
+									+ email, message_type:"success"})
+								})
+							})
 					});
 				});
 			}
@@ -36,8 +50,8 @@ exports.registerUser = function(req, res) {
 }
 
 exports.registerClient = function(req, res) {
-	req.checkBody('name', 'No valid name is given').notEmpty().len(3, 40)
-	req.checkBody('redirect_uri', 'Invalid url').isURL()
+	req.checkBody('name', 'Nome inválido').notEmpty().len(3, 40)
+	req.checkBody('redirect_uri', 'URL inválida').isURL()
 
 	var errors = req.validationErrors()
 	if (errors) {
@@ -54,7 +68,7 @@ exports.registerClient = function(req, res) {
 
 		countQuery.on('row', (row) => {
 			if(parseInt(row.count) > 0) {
-				res.send("Name is already taken").status(422)
+				res.send("E-mail já foi utilizado").status(422)
 			} else {
 				db.query(`
 				INSERT INTO rs.oauth_clients(name, client_id, client_secret, redirect_uri) VALUES ($1, $2, $3, $4)

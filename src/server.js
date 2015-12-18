@@ -48,9 +48,10 @@ app.post('/oauth/authorization', passport.authenticate('local', {
 	}), function(req, res) {
 		//It is not essential for the flow to redirect here,
 		// it would also be possible to call this directly
-		// res.redirect('/oauth/authorization?response_type=' + req.body.response_type +
-		// 			 '&client_id=' + req.body.client_id +
-		// 			 '&redirect_uri=' + req.body.redirect_uri)
+console.log(req, res)
+		res.redirect('/oauth/authorization?response_type=' + req.body.response_type +
+					 '&client_id=' + req.body.client_id +
+					 '&redirect_uri=' + req.body.redirect_uri)
 })
 
 app.post('/oauth/token', oauth.token)

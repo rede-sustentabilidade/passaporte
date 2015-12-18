@@ -22,8 +22,8 @@ passport.use(new LocalStrategy(
 		`, [username], function(err, results) {
 			if (err) { done(err) }
 
-			let row = results.rows
-			if(parseInt(row.length) < 1) {
+			let row = results.rows[0]
+			if(parseInt(results.rows.length) < 1) {
 				return done(null, false, {message: 'E-mail não encontrado.'});
 			} else {
 				bcrypt.compare(password, row.password, function (err, res) {
