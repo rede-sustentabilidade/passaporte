@@ -137,16 +137,16 @@ exports.authorization = [
 		let countQuery = db.query(`
 			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
 			where oc.client_id = $1 and oc.redirect_uri = $2;
-		`, [client_id, redirect_uri]);
-
-		countQuery.on('error', done);
-		countQuery.on('row', (row) => {
-			if(parseInt(row.count) < 0) {
+		`, [client_id, redirect_uri], function(err, results) {
+			if (err) done(err)
+			if(results.rows.length < 0) {
 				res.send("Client ID not found.").status(404)
 			} else {
+				let row = results.rows[0]
 				done(null, row, redirect_uri)
 			}
 		})
+		countQuery.on('error', done);
 	}),
 	function(req, res) {
 		res.render('decision', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });

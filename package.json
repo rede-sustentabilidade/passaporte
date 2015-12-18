@@ -4,7 +4,8 @@
   "description": "HUB de usuários com cadastro, login, esqeuceu senha e clientes autorizados",
   "main": "server.js",
   "scripts": {
-    "start": "./node_modules/gulp/bin/gulp.js serve",
+    "start": "./node_modules/.bin/gulp serve",
+	"postinstall": "./node_modules/.bin/gulp build",
     "test": "lab -t 100 -T node_modules/lab-babel test",
     "prepublish": "gulp build"
   },

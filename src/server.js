@@ -43,13 +43,11 @@ app.get('/oauth/authorization', function(req, res) {
 })
 
 app.post('/oauth/authorization', passport.authenticate('local', {
-		failureFlash: true,
 		failureRedirect: '/oauth/authorization'
 	}), function(req, res) {
 		//It is not essential for the flow to redirect here,
 		// it would also be possible to call this directly
-console.log(req, res)
-		res.redirect('/oauth/authorization?response_type=' + req.body.response_type +
+		res.redirect('/authorization?response_type=' + req.body.response_type +
 					 '&client_id=' + req.body.client_id +
 					 '&redirect_uri=' + req.body.redirect_uri)
 })
