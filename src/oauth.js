@@ -134,6 +134,7 @@ exports.authorization = [
 		}
 	},
 	server.authorization(function(client_id, redirect_uri, done) {
+		console.log(client_id, redirect_uri)
 		let countQuery = db.query(`
 			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
 			where oc.client_id = $1 and oc.redirect_uri = $2;

@@ -65,11 +65,9 @@ passport.use("clientBasic", new BasicStrategy(
     function (clientId, clientSecret, done) {
 		let countQuery = db.query(`
 			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
-			where oc.client_id = $1;
-		`, [clientId]);
-
-		countQuery.on('error', done);
-		countQuery.on('row', (row) => {
+			where oc.client_secret = $1 and oc.client_id = $2;
+		`, [clientSecret, clientId], function (err, result) {
+			let row = result.rows[0]
 			if(Object.keys(row).length < 1) {
 				return done(null, false)
 			} else if (row.client_secret === clientSecret) {
@@ -77,6 +75,7 @@ passport.use("clientBasic", new BasicStrategy(
 			}
 			return done(null, false)
 		})
+		countQuery.on('error', done);
     }
 ));
 
@@ -85,19 +84,18 @@ passport.use("clientPassword", new ClientPasswordStrategy(
 		let countQuery = db.query(`
 			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri
 			FROM rs.oauth_clients oc
-			WHERE oc.client_id = $1;
-		`, [clientId]);
-
-		countQuery.on('error', done);
-		countQuery.on('row', (row) => {
+			where oc.client_secret = $1 and oc.client_id = $2;
+		`, [clientSecret, clientId], function (err ,result) {
+			let row = result.rows[0]
 			if(Object.keys(row).length < 1) {
 				return done(null, false)
-			} else if (row.client_secret === clientSecret) {
+			} else if (row.client_secret == clientSecret) {
 				return done(null, row)
 			} else {
 				return done(null, false)
 			}
 		})
+		countQuery.on('error', done);
     }
 ));
 
@@ -107,6 +105,8 @@ passport.use("clientPassword", new ClientPasswordStrategy(
  */
 passport.use("accessToken", new BearerStrategy(
     function (accessToken, done) {
+		console.log(accessToken)
+		done(null, true)
         var accessTokenHash = crypto.createHash('sha1').update(accessToken).digest('hex')
         db.collection('accessTokens').findOne({token: accessTokenHash}, function (err, token) {
             if (err) return done(err)

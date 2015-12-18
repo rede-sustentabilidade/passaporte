@@ -10,11 +10,11 @@ class Mailer {
 			accessKeyId: this.mail_key,
 			secretAccessKey: this.mail_secret,
 			rateLimit: 5
-		}, {
+		}), {
 			// default values for sendMail method
 			from: 'Rede Sustentabilidade <nao-responda@redesustentabilidade.org.br>',
 			replyTo: 'sistema@redesustentabilidade.org.br'
-		}))
+		})
 	}
 
 	setTransporter (transporter) {
@@ -39,7 +39,7 @@ class Mailer {
 				return done('Não foi possível enviar o email de teste.', null)
 			} else {
 				that.validate = true
-				return done(null, info.response.toString())
+				return done(null, info)
 			}
 		});
 
