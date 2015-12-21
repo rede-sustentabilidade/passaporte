@@ -32,6 +32,9 @@ app.post('/client/registration', registration.registerClient)
 app.get('/registration', function(req, res) { res.render('userRegistration') })
 app.post('/registration', registration.registerUser)
 
+app.get('/lost_password', function(req, res) { res.render('userLostPassword') })
+app.post('/lost_password', registration.userLostPassword)
+
 app.get('/oauth/authorization', function(req, res) {
 	res.render('login', {
 		client_id : req.query.client_id,
@@ -70,7 +73,7 @@ if (app.get('env') === 'development') {
 	// 		error: err
 	// 	})
 	// })
-	app.locals.url_site = 'http://herokuwp.local'
+	app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 	app.use(errorHandler())
 }
 // catch 404 and forward to error handler

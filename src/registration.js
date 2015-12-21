@@ -3,6 +3,51 @@ import utils from "./utils"
 import bcrypt from 'bcrypt'
 import mailer from './mailer'
 
+exports.userLostPassword = function(req, res) {
+
+	req.checkBody('email', 'E-mail inválido').notEmpty().isEmail()
+
+	var errors = req.validationErrors()
+	if (errors) {
+		res.render('userLostPassword', {message:errors})
+	} else {
+		let email = req.body['email'],
+			countQuery = db.query(`
+				SELECT u.id, u.username from rs.users u
+				where lower(u.username) = lower($1);
+			`, [email]);
+
+		countQuery.on('row', (row) => {
+			if(Object.keys(row).length > 0) {
+				let password = Math.random().toString(36).slice(-8)
+				bcrypt.genSalt(10, (saltError, salt) => {
+					bcrypt.hash(password, salt, (hashError, hash) => {
+						db.query(`
+						UPDATE rs.users set password = $1 where id = $2;
+						`, [hash, row.id], (err, results) => {
+							if (err) return res.render('userLostPassword', {message:err})
+
+							let m = new mailer()
+							m.send (email, 'Requisição de nova senha',
+`Seu pedido de resgate de senha foi finalizado.
+
+A nova senha do seu login é: ${password}
+
+Agora você pode acessar o site da rede e autenticar-se
+${req.app.locals.url_site}/?login=1
+`, function () {
+								res.render('userRegistration',
+									{message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: "
+									+ email, message_type:"success"})
+								})
+							})
+					});
+				});
+			}
+		});
+	}
+}
+
 exports.registerUser = function(req, res) {
 	req.checkBody('email', 'E-mail inválido').notEmpty().isEmail()
 
@@ -35,7 +80,7 @@ exports.registerUser = function(req, res) {
 A senha do seu login é: ${password}
 
 Agora você pode acessar o site da rede e autenticar-se
-https://redesustentabilidade.org.br/oauth/authorization
+${req.app.locals.url_site}/?login=1
 `, function () {
 								res.render('userRegistration',
 									{message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: "
