@@ -1,5 +1,10 @@
 @import "_purecss-extra"
 
+html
+	box-sizing: border-box
+*, *:before, *:after
+	box-sizing: inherit
+
 body
 	background-color: #F1F1F1
 	color: #777
@@ -12,6 +17,7 @@ a
 p
 	margin: 0
 
+#decision,
 #login
 	padding: 5% 0 0 0
 	width: 330px
@@ -23,3 +29,24 @@ p
 	box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.13)
 .right
 	text-align: right
+
+#decision
+	text-align: center
+	fieldset
+		border:0
+	.email
+		span
+			font-weight: bold
+	.inform-question
+		padding: 1em 0
+	.client
+		width: 100%
+		padding: .6em
+		background-color: lightness(#000, 30%)
+		color: #fff
+	.decision-question
+		padding: 2em 0 1em
+	.pure-button-success
+		float: left
+	.pure-button-error
+		float: right

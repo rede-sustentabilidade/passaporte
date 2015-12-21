@@ -221,6 +221,14 @@
   background: #ffa300;
   color: #fff;
 }
+html {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
 body {
   background-color: #f1f1f1;
   color: #777;
@@ -236,6 +244,7 @@ a:hover {
 p {
   margin: 0;
 }
+#decision,
 #login {
   padding: 5% 0 0 0;
   width: 330px;
@@ -249,4 +258,31 @@ p {
 }
 .right {
   text-align: right;
+}
+#decision {
+  text-align: center;
+}
+#decision fieldset {
+  border: 0;
+}
+#decision .email span {
+  font-weight: bold;
+}
+#decision .inform-question {
+  padding: 1em 0;
+}
+#decision .client {
+  width: 100%;
+  padding: 0.6em;
+  background-color: #4d4d4d;
+  color: #fff;
+}
+#decision .decision-question {
+  padding: 2em 0 1em;
+}
+#decision .pure-button-success {
+  float: left;
+}
+#decision .pure-button-error {
+  float: right;
 }

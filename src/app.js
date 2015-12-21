@@ -22,7 +22,7 @@ app.use(expressValidator())
 app.use(serveStatic('public'))
 app.use(morgan('dev'))
 app.use(cookieParser('rede-sustentabilidade.org.br'))
-app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true }))
+app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000*60*24*7 }, resave: true, saveUninitialized: true }))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
@@ -57,7 +57,7 @@ app.get('/authorization', oauth.authorization)
 app.post('/decision', oauth.decision)
 
 app.get('/user', passport.authenticate('accessToken', { session: false }), function (req, res) {
-    res.send(req.user)
+    res.json(req.user)
 })
 
 // development error handler
