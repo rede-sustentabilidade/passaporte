@@ -35,6 +35,9 @@ app.post('/registration', registration.registerUser)
 app.get('/lost_password', function(req, res) { res.render('userLostPassword') })
 app.post('/lost_password', registration.userLostPassword)
 
+app.get('/change_password', function(req, res) { res.render('userChangePassword') })
+app.post('/change_password', registration.userChangePassword)
+
 app.get('/oauth/authorization', function(req, res) {
 	res.render('login', {
 		client_id : req.query.client_id,

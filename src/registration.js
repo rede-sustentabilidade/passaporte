@@ -2,9 +2,51 @@ import db from './db'
 import utils from "./utils"
 import bcrypt from 'bcrypt'
 import mailer from './mailer'
+import loginLocal from './auth'
+
+exports.userChangePassword = function(req, res) {
+	req.checkBody('username',            'E-mail inválido').notEmpty().isEmail()
+	req.checkBody('current_password',    'O campo senha atual é obrigatório').notEmpty()
+	req.checkBody('new_password',        'O senha deve conter ao menos 6 caracteres').notEmpty().len(6, 50);
+	req.checkBody('repeat_new_password', 'O campo repetir senha é obrigatório').notEmpty()
+
+	let username            = req.body['username'],
+		current_password    = req.body['current_password'],
+		new_password        = req.body['new_password'],
+		repeat_new_password = req.body['repeat_new_password'],
+		errors = req.validationErrors()
+	if (errors) {
+		let err = []
+		errors.forEach(function(v) {
+			err.push({ message: v.msg, message_type: "error"});
+		})
+		res.render('userChangePassword', err[0])
+	} else if (new_password !== repeat_new_password) {
+		res.render('userChangePassword', { "message": 'As nova senha não são iguais', "message_type": "error"});
+	}	else {
+		loginLocal(username, current_password, function(err, results, msg) {
+			if (!results) {
+				res.render('userChangePassword', {"message":msg.message, "message_type":"error"})
+			} else {
+				let row = results.rows[0]
+				bcrypt.genSalt(10, (saltError, salt) => {
+					bcrypt.hash(new_password, salt, (hashError, hash) => {
+						db.query(`
+						UPDATE rs.users set password = $1 where id = $2;
+						`, [hash, row.id], (err, results) => {
+							if (err) return res.render('userChangePassword', {message:err})
+							res.render('userChangePassword',
+								{message:"Senha alterado com sucesso, para o email: "
+								+ email, message_type:"success"})
+							})
+					});
+				});
+			}
+		});
+	}
+}
 
 exports.userLostPassword = function(req, res) {
-
 	req.checkBody('email', 'E-mail inválido').notEmpty().isEmail()
 
 	var errors = req.validationErrors()
@@ -36,7 +78,7 @@ A nova senha do seu login é: ${password}
 Agora você pode acessar o site da rede e autenticar-se
 ${req.app.locals.url_site}/?login=1
 `, function () {
-								res.render('userRegistration',
+								res.render('userLostPassword',
 									{message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: "
 									+ email, message_type:"success"})
 								})

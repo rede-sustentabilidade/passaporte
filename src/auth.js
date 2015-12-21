@@ -14,26 +14,25 @@ import crypto from 'crypto'
 /**
 * LocalStrategy
 */
-passport.use(new LocalStrategy(
-    function(username, password, done) {
-		let query = db.query(`
-			SELECT u.id, u.username, u.password from rs.users u
-			where lower(u.username) = lower($1);
-		`, [username], function(err, results) {
-			if (err) { done(err) }
-
-			let row = results.rows[0]
-			if(parseInt(results.rows.length) < 1) {
-				return done(null, false, {message: 'E-mail não encontrado.'});
-			} else {
-				bcrypt.compare(password, row.password, function (err, res) {
-					if (!res) return done(null, false, {message: 'Senha não confere.'})
-					return done(null, row)
-				})
-			}
-		});
-    }
-))
+var loginLocal = function(username, password, done) {
+	let query = db.query(`
+		SELECT u.id, u.username, u.password from rs.users u
+		where lower(u.username) = lower($1);
+	`, [username], function(err, results) {
+		if (err) { done(err) }
+console.log(results)
+		let row = results.rows[0]
+		if(parseInt(results.rows.length) < 1) {
+			return done(null, false, {message: 'E-mail não encontrado.'});
+		} else {
+			bcrypt.compare(password, row.password, function (err, res) {
+				if (!res) return done(null, false, {message: 'Senha inválida'})
+				return done(null, row)
+			})
+		}
+	});
+}
+passport.use(new LocalStrategy(loginLocal))
 
 passport.serializeUser(function(user, done) {
     done(null, user.username);
@@ -142,3 +141,4 @@ passport.use("accessToken", new BearerStrategy(
 		)
     }
 ))
+export default loginLocal
