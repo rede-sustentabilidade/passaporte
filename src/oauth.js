@@ -62,10 +62,9 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 		SELECT ac.code, ac.client_id, ac.user_id, ac.redirect_uri
 		FROM rs.oauth_authorization_codes ac
 		WHERE ac.code = $1 and ac.client_id = $2
-	`, [code, client.client_id])
-	search_auth_code.on('error', done)
-	search_auth_code.on('row', (row) => {
-		if(Object.keys(row).length < 1) {
+	`, [code, client.client_id], function (err, results) {
+		let row = results.rows[0]
+		if(Object.keys(results.rows).length < 1) {
 			done(null, false)
 		} else if (row.redirect_uri !== redirectURI) {
 			done(null, false)
@@ -97,6 +96,7 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 			})
 		})
     })
+	search_auth_code.on('error', done)
 }))
 
 //Refresh Token

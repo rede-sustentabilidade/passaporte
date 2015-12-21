@@ -56,8 +56,8 @@ app.post('/oauth/token', oauth.token)
 app.get('/authorization', oauth.authorization)
 app.post('/decision', oauth.decision)
 
-app.get('/restricted', passport.authenticate('accessToken', { session: false }), function (req, res) {
-    res.send("Yay, you successfully accessed the restricted resource!")
+app.get('/user', passport.authenticate('accessToken', { session: false }), function (req, res) {
+    res.send(req.user)
 })
 
 // development error handler

@@ -82,8 +82,8 @@ passport.use("clientBasic", new BasicStrategy(
 passport.use("clientPassword", new ClientPasswordStrategy(
     function (clientId, clientSecret, done) {
 		let countQuery = db.query(`
-			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri
-			FROM rs.oauth_clients oc
+			select oc.name, oc.client_id, oc.client_secret, oc.redirect_uri
+			from rs.oauth_clients oc
 			where oc.client_secret = $1 and oc.client_id = $2;
 		`, [clientSecret, clientId], function (err ,result) {
 			let row = result.rows[0]
@@ -105,22 +105,40 @@ passport.use("clientPassword", new ClientPasswordStrategy(
  */
 passport.use("accessToken", new BearerStrategy(
     function (accessToken, done) {
-		done(null, true)
         var accessTokenHash = crypto.createHash('sha1').update(accessToken).digest('hex')
-        db.collection('accessTokens').findOne({token: accessTokenHash}, function (err, token) {
-            if (err) return done(err)
-            if (!token) return done(null, false)
-            if (new Date() > token.expirationDate) {
-                db.collection('accessTokens').remove({token: accessTokenHash}, function (err) { done(err) })
-            } else {
-                db.collection('users').findOne({username: token.userId}, function (err, user) {
-                    if (err) return done(err)
-                    if (!user) return done(null, false)
-                    // no use of scopes for no
-                    var info = { scope: '*' }
-                    done(null, user, info);
-                })
-            }
-        })
+		let tokenSearch = db.query(
+			`select oa.access_token, oa.client_id, oa.user_id, oa.expires
+			from rs.oauth_access_tokens oa
+			where oa.access_token = $1;`,
+			[accessTokenHash],
+			function (err ,rToken) {
+				if (err) return done(err)
+				if(Object.keys(rToken.rows).length == 0)  return done(null, false)
+				let user_id = rToken.rows[0].user_id
+				let expires = rToken.rows[0].expires
+				if (new Date() > expires) {
+					let tokenRemove = db.query(
+						`delete from rs.oauth_access_tokens oa where oa.access_token = $1`,
+						[accessTokenHash],
+						done
+					)
+				} else {
+					let userSearch = db.query(`
+						select u.id, u.username, u.password
+						from rs.users as u
+						where u.id = $1`,
+						[user_id],
+						function (err2, rUser) {
+							if (err) return done(err)
+							if (!rUser.rows[0].id) return done(null, false)
+							// no use of scopes for no
+							var info = { scope: '*' }
+							delete rUser.rows[0].password
+							done(null, rUser.rows[0], info)
+						}
+					)
+				}
+			}
+		)
     }
 ))
