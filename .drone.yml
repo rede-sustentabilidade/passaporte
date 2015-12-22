@@ -1,5 +1,5 @@
 build:
-    image: node: 0.10
+    image: node
     commands:
         - npm install
 cache:
