@@ -1,0 +1,17 @@
+build:
+    image: node0.10
+    commands:
+      - npm install
+cache:
+    mount:
+        - node_modules
+deploy:
+    git_push:
+        branch: master
+        remote: dokku@redesustentabilidade.org.br:passaporte
+        force: false
+    git_push:
+        branch: develop
+        remote: dokku@redesustentabilidade.net:passaporte
+        force: false
+
