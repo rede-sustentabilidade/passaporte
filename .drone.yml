@@ -10,8 +10,11 @@ deploy:
         branch: master
         remote: dokku@redesustentabilidade.org.br:passaporte
         force: false
+        when:
+            branch: master
     git_push:
-        branch: develop
-        remote: dokku@redesustentabilidade.net:passaporte:master
+        remote: dokku@redesustentabilidade.net:passaporte
         force: false
+        when:
+            branch: develop
 
