@@ -12,6 +12,7 @@ import util from 'util'
 import auth from "./auth"
 import oauth from "./oauth"
 import registration from "./registration"
+import db from './db'
 
 // Express configuration
 var app = express()
@@ -39,12 +40,32 @@ app.get('/change_password', function(req, res) { res.render('userChangePassword'
 app.post('/change_password', registration.userChangePassword)
 
 app.get('/oauth/authorization', function(req, res) {
-	res.render('login', {
-		client_id : req.query.client_id,
-		redirect_uri: req.query.redirect_uri,
-		response_type: req.query.response_type,
-		messages: req.flash('error')
-	})
+	if (!req.body.client_id || !req.body.response_type || !req.body.redirect_uri) {
+		let countQuery = db.query(`
+			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
+			limit 1
+		`);
+
+		countQuery.on('row', (row) => {
+			if(Object.keys(row).length < 1) {
+				res.send("Client ID not found.").status(404)
+			} else {
+				res.render('login', {
+					client_id : row.client_id,
+					redirect_uri: row.redirect_uri,
+					response_type: 'code',
+					messages: req.flash('error')
+				})
+			}
+		})
+	} else {
+		res.render('login', {
+			client_id : req.query.client_id,
+			redirect_uri: req.query.redirect_uri,
+			response_type: req.query.response_type,
+			messages: req.flash('error')
+		})
+	}
 })
 
 app.post('/oauth/authorization', passport.authenticate('local', {

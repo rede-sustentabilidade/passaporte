@@ -20,7 +20,6 @@ var loginLocal = function(username, password, done) {
 		where lower(u.username) = lower($1);
 	`, [username], function(err, results) {
 		if (err) { done(err) }
-console.log(results)
 		let row = results.rows[0]
 		if(parseInt(results.rows.length) < 1) {
 			return done(null, false, {message: 'E-mail não encontrado.'});
