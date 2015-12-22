@@ -12,6 +12,6 @@ deploy:
         force: false
     git_push:
         branch: develop
-        remote: dokku@redesustentabilidade.net:passaporte
+        remote: dokku@redesustentabilidade.net:passaporte:master
         force: false
 
