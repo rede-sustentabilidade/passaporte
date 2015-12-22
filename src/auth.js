@@ -128,7 +128,7 @@ passport.use("accessToken", new BearerStrategy(
 						[user_id],
 						function (err2, rUser) {
 							if (err) return done(err)
-							if (!rUser.rows[0].id) return done(null, false)
+							if (rUser.rows.length == 0) return done(null, false)
 							// no use of scopes for no
 							var info = { scope: '*' }
 							delete rUser.rows[0].password
