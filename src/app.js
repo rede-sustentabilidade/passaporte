@@ -76,9 +76,9 @@ if (app.get('env') === 'development') {
 	// 		error: err
 	// 	})
 	// })
-	app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 	app.use(errorHandler())
 }
+app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
 	var err = new Error('Not Found');
