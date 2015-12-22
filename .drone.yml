@@ -1,7 +1,7 @@
 build:
     image: node: 0.10
     commands:
-      - npm install
+        - npm install
 cache:
     mount:
         - node_modules
