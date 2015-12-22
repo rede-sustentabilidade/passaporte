@@ -1,3 +1,5 @@
+[![Build Status](http://ci.redesustentabilidade.org.br/api/badges/rede-sustentabilidade/passaporte/status.svg)](http://ci.redesustentabilidade.org.br/rede-sustentabilidade/passaporte)
+
 Módulo API para autenticação
 ======================
 Este módulo é responsável por fazer a autenticação com usuário e senha, registro de usuário com envio de senha por email e resgate de senha por e-mail.
