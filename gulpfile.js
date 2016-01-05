@@ -31,7 +31,7 @@ gulp.task('serve', function() {
 	$.nodemon({
 		script: 'src/server.js',
 		execMap: {
-		  'js': 'node_modules/babel/bin/babel-node.js'
+		  'js': './node_modules/.bin/babel-node'
 		},
 		ignore: ['gulpfile.js', 'node_modules', 'test']
 	});
