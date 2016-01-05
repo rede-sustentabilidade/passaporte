@@ -10,5 +10,5 @@ let dbClient = () => {
     return client;
 }
 
-export default dbClient;
+export default dbClient();
 
