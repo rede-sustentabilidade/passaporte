@@ -8,7 +8,7 @@ let dbClient = () => {
     client.connect();
 
     return client;
-}();
+}
 
 export default dbClient;
 

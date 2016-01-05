@@ -14,8 +14,9 @@ gulp.task('build', ['views'], function() {
 	'use strict';
 
 	return gulp.src(['src/**/*.js'])
-		.pipe($.cached('*.js'))
-		.pipe($.babel())
+		.pipe($.babel({
+			presets: ['es2015']
+		}))
 		.pipe(gulp.dest('dist/'));
 });
 
@@ -30,9 +31,7 @@ gulp.task('serve', function() {
 	'use strict';
 	$.nodemon({
 		script: 'src/server.js',
-		execMap: {
-		  'js': './node_modules/.bin/babel-node'
-		},
+		exec: './node_modules/.bin/babel-node',
 		ignore: ['gulpfile.js', 'node_modules', 'test']
 	});
 
