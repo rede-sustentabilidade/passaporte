@@ -13,7 +13,7 @@ class Mailer {
 		}), {
 			// default values for sendMail method
 			from: 'Rede Sustentabilidade <nao-responda@redesustentabilidade.org.br>',
-			replyTo: 'sistema@redesustentabilidade.org.br'
+			replyTo: 'contato@redesustentabilidade.org.br'
 		})
 	}
 

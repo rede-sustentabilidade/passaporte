@@ -89,17 +89,24 @@ class InviteAll {
 						if (created) {
 							console.log(`A senha do ${email} é: ${password} ${hash}`)
 						}
+						let m = new mailer()
+						m.send (email, 'Atualização do perfil',
+`Car@ filiad@,
+
+estamos passando por obras em nossa plataforma virtual. Teremos melhorias mensais no sistema para propiciar uma melhor performance para os usuários.
+
+Enviamos abaixo uma nova senha para você experienciar a plataforma.
+login: ${email}
+senha: ${password}
+
+Se tiver dúvidas, por favor, envie email para contato@redesustentabilidade.org.br
+
+Atenciosamente,
+Equipe Rede Sustentabilidade
+`, function () {
 						done(null, created)
+})
 					})
-				// let m = new mailer()
-				// m.send (email, 'Informações do cadastro',
-// `Você iniciou o cadastro no site da Rede Sustentabilidade.
-
-
-// Agora você pode acessar o site da rede e autenticar-se
-// ${req.app.locals.url_site}/?login=1
-// `
-				// )
 			})
 		})
 	}

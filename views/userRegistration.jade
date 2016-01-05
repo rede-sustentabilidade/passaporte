@@ -7,8 +7,6 @@ block content
 				p(class="pure-alert pure-alert-#{message_type}") !{message}
 			- else if (message)
 				p.pure-alert.pure-alert-error !{message}
-			- else
-				p.pure-alert.pure-alert-warning Se já participou de algum cadastro com a #Rede, utilize o mesmo e-mail.
 			form(action='/registration', method='post', class="pure-form pure-form-stacked")
 				label(for='email') E-mail
 				input(id='email', type='email',value='', name='email', class='pure-input-1', required)

@@ -6,6 +6,10 @@ block content
 			form(action='/oauth/authorization',method='post', class="pure-form pure-form-stacked")
 				each item in messages
 					p.pure-alert-error= item
+				p.pure-alert.pure-alert-warning
+					| Estamos em obras para aprimorar o ambiente virtual da REDE, por isso enviamos uma nova senha pra você. Caso não tenha recebido&nbsp;
+					a(href="/registration") clique aqui
+					| .
 				label(for='username') E-mail
 				input(id='username', type='email',value='', name='username', class='pure-input-1', required)
 				label(for='password') Senha
