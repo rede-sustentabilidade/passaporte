@@ -39,8 +39,8 @@ app.post('/lost_password', registration.userLostPassword)
 app.get('/change_password', function(req, res) { res.render('userChangePassword') })
 app.post('/change_password', registration.userChangePassword)
 
-app.get('/oauth/authorization', function(req, res) {
-	if (!req.body.client_id || !req.body.response_type || !req.body.redirect_uri) {
+var renderAuthorizationPage = function(req, res) {
+	if (!req.query.client_id || !req.query.response_type || !req.query.redirect_uri) {
 		let countQuery = db.query(`
 			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
 			limit 1
@@ -59,14 +59,37 @@ app.get('/oauth/authorization', function(req, res) {
 			}
 		})
 	} else {
-		res.render('login', {
-			client_id : req.query.client_id,
-			redirect_uri: req.query.redirect_uri,
-			response_type: req.query.response_type,
-			messages: req.flash('error')
-		})
+		var client_id = req.query.client_id,
+		  redirect_uri = req.query.redirect_uri,
+			response_type = req.query.response_type;
+		let query = db.query(`
+			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
+			where oc.client_id = $1;
+		`, [req.query.client_id], function(err, results) {
+			if (err) {
+				res.send("Internal Error.").status(500)
+			}
+			let row = results.rows[0];
+			if (row.redirect_uri !== redirect_uri) {
+				// Deveria responder com erro, mas para evitar possíveis problemas com
+				// codigo legado, vamos simplesmente substituir a uri invalida pela
+				// armazenada no banco de dados.
+				// res.send("Invalid Redirect URI.").status(401)
+				redirect_uri = row.redirect_uri;
+			}
+			res.render('login', {
+				client_id : client_id,
+				redirect_uri: redirect_uri,
+				response_type: req.query.response_type,
+				messages: req.flash('error')
+			})
+
+		});
 	}
-})
+}
+
+app.get('/oauth/authorization', renderAuthorizationPage);
+app.get('/oauth/authorize', renderAuthorizationPage);
 
 app.post('/oauth/authorization', passport.authenticate('local', {
 		failureFlash: true,
