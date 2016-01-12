@@ -30,18 +30,18 @@ server.deserializeClient(function(id, done) {
 })
 
 //Implicit grant
-// server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
-//     let token = utils.uid(256),
-//     	tokenHash = crypto.createHash('sha1').update(token).digest('hex'),
-//     	expirationDate = new Date(new Date().getTime() + (3600 * 1000)),
-// 		query = db.query(`
-// 		INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
-// 			VALUES ($1, $2, $3, $4);
-// 		`, [tokenHash, client.client_id, user.id, expirationDate], (err, result) => {
-// 			if (err) return done(err)
-// 			return done(null, token, {expires_in: expirationDate.toISOString()})
-// 		})
-// }))
+server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
+    let token = utils.uid(256),
+		tokenHash = crypto.createHash('sha1').update(token).digest('hex'),
+		expirationDate = new Date(new Date().getTime() + (3600 * 1000)),
+		query = db.query(`
+		INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
+			VALUES ($1, $2, $3, $4);
+		`, [tokenHash, client.client_id, user.id, expirationDate], (err, result) => {
+			if (err) return done(err)
+			return done(null, token, {expires_in: expirationDate.toISOString()})
+		})
+}))
 
 //Register grant (used to issue authorization codes)
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
