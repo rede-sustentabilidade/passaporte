@@ -9,6 +9,7 @@ import morgan from 'morgan'
 import errorHandler from 'errorhandler'
 import flash from 'connect-flash'
 import util from 'util'
+import cors from 'cors'
 import auth from "./auth"
 import oauth from "./oauth"
 import registration from "./registration"
@@ -27,6 +28,8 @@ app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 6000
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
+app.use(cors());
+
 app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
 app.post('/client/registration', registration.registerClient)
 
