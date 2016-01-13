@@ -1,9 +1,29 @@
 import oauth2orize from 'oauth2orize'
 import passport from 'passport'
+import jwt from 'jsonwebtoken'
 import db from './db'
 import crypto from 'crypto'
 import utils from "./utils"
 import bcrypt from 'bcrypt'
+
+var createToken = function(user, expirationDate, issuer, secret) {
+  var expiresIn = 3600;
+  if (expirationDate) {
+    expiresIn = (expirationDate.getTime() - (new Date()).getTime()) / 1000;
+  }
+  let payload = {
+    username: user.username,
+    roles: ['user'],  // TODO: Add all user roles
+  };
+  let options = {
+    subject: user.id,
+    expiresIn: expiresIn,
+    issuer: issuer || process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
+  };
+  let secret_ = secret || process.env['JWT_SECRET'] || 'some-secret-key';
+  let token = jwt.sign(payload, secret_, options);
+  return token;
+};
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
@@ -31,23 +51,23 @@ server.deserializeClient(function(id, done) {
 
 //Implicit grant
 server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
-    let token = utils.uid(256),
-		tokenHash = crypto.createHash('sha1').update(token).digest('hex'),
-		expirationDate = new Date(new Date().getTime() + (3600 * 1000)),
-		query = db.query(`
+		var expirationDate = new Date(new Date().getTime() + (3600 * 1000));
+		var token = createToken(user, expirationDate);
+		var tokenHash = crypto.createHash('sha1').update(token).digest('hex');
+		var query = db.query(`
 		INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
 			VALUES ($1, $2, $3, $4);
 		`, [tokenHash, client.client_id, user.id, expirationDate], (err, result) => {
-			if (err) return done(err)
-			return done(null, token, {expires_in: expirationDate.toISOString()})
+			if (err) return done(err);
+			return done(null, token, {expires_in: expirationDate.toISOString()});
 		})
-}))
+}));
 
 //Register grant (used to issue authorization codes)
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
     var code = utils.uid(16)
     var codeHash = crypto.createHash('sha1').update(code).digest('hex')
-	var query = db.query(`
+		var query = db.query(`
 		INSERT INTO rs.oauth_authorization_codes(code, client_id, user_id, redirect_uri)
 			VALUES ($1, $2, $3, $4);
 		`, [codeHash, client.client_id, user.id, redirectURI], (err, result) => {
@@ -73,30 +93,30 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 		let remove_auth_code = db.query(`
 			DELETE from rs.oauth_authorization_codes WHERE code = $1
 			`, [code], (err, result) => {
-			if (err) return done(err)
-			var token = utils.uid(256)
-			var refreshToken = utils.uid(256)
-			var tokenHash = crypto.createHash('sha1').update(token).digest('hex')
-			var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex')
-			var expirationDate = new Date(new Date().getTime() + (3600 * 1000))
+			if (err) return done(err);
+			var expirationDate = new Date(new Date().getTime() + (3600 * 1000));
+			var token = createToken(user, expirationDate);
+			var tokenHash = crypto.createHash('sha1').update(token).digest('hex');
+			var refreshToken = utils.uid(256);
+			var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex');
 
 			let create_token = db.query(`
 				INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
 					VALUES ($1, $2, $3, $4);
 				`, [tokenHash, client.client_id, row.user_id, expirationDate], (err2, result2) => {
-				if (err2) return done(err2)
+				if (err2) return done(err2);
 
 				let query3 = db.query(`
 					INSERT INTO rs.oauth_refresh_tokens(refresh_token, client_id, user_id, expires)
 						VALUES ($1, $2, $3, $4);
 					`, [refreshTokenHash, client.client_id, row.user_id, expirationDate], (err3, result3) => {
-					if (err3) return done(err3)
-					done(null, token, refreshToken, {expires_in: expirationDate})
+					if (err3) return done(err3);
+					done(null, token, refreshToken, {expires_in: expirationDate});
 				})
 			})
 		})
     })
-	search_auth_code.on('error', done)
+	search_auth_code.on('error', done);
 }))
 
 //Refresh Token

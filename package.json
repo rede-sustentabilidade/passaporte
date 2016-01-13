@@ -35,6 +35,7 @@
     "gulp-nodemon": "^2.0.2",
     "gulp-stylus": "^2.1.0",
     "jade": "1.x.x",
+    "jsonwebtoken": "^5.5.4",
     "lab": "^5.8.0",
     "lab-babel": "^1.1.1",
     "morgan": "^1.6.1",
