@@ -6,17 +6,16 @@ import crypto from 'crypto'
 import utils from "./utils"
 import bcrypt from 'bcrypt'
 
-var createToken = function(user, expirationDate, issuer, secret) {
+var createToken = function(userId, expirationDate, issuer, secret) {
   var expiresIn = 3600;
   if (expirationDate) {
     expiresIn = (expirationDate.getTime() - (new Date()).getTime()) / 1000;
   }
   let payload = {
-    username: user.username,
     roles: ['user'],  // TODO: Add all user roles
   };
   let options = {
-    subject: user.id,
+    subject: userId,
     expiresIn: expiresIn,
     issuer: issuer || process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
   };
@@ -52,7 +51,7 @@ server.deserializeClient(function(id, done) {
 //Implicit grant
 server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
 		var expirationDate = new Date(new Date().getTime() + (3600 * 1000));
-		var token = createToken(user, expirationDate);
+		var token = createToken(user.id, expirationDate);
 		var tokenHash = crypto.createHash('sha1').update(token).digest('hex');
 		var query = db.query(`
 		INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
@@ -95,7 +94,7 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 			`, [code], (err, result) => {
 			if (err) return done(err);
 			var expirationDate = new Date(new Date().getTime() + (3600 * 1000));
-			var token = createToken(user, expirationDate);
+			var token = createToken(row.user_id, expirationDate);
 			var tokenHash = crypto.createHash('sha1').update(token).digest('hex');
 			var refreshToken = utils.uid(256);
 			var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex');
