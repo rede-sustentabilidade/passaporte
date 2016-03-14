@@ -22,6 +22,7 @@
     "express-session": "^1.13.0",
     "express-validator": "2.x.x",
     "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
     "gulp-cli": "^1.2.1",
     "gulp-load-plugins": "^1.2.0",
     "gulp-nodemon": "^2.0.6",
