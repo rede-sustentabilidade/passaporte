@@ -13,7 +13,10 @@ import auth from "./auth"
 import oauth from "./oauth"
 import registration from "./registration"
 import db from './db'
+import redis from './redis'
 
+var RedisStore = require('connect-redis')(session);
+var rs = new RedisStore({ client: redis, maxAge: 24 * 60 * 60 * 1000 });
 // Express configuration
 var app = express()
 app.set('views', __dirname + '/../views')
@@ -23,7 +26,8 @@ app.use(expressValidator())
 app.use(serveStatic('public'))
 app.use(morgan('dev'))
 app.use(cookieParser('rede-sustentabilidade.org.br'))
-app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000*60*24*7 }, resave: true, saveUninitialized: true }))
+app.use(session({ store: rs, secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000*60*24*7 } }))
+
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
