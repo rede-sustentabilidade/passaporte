@@ -1,3 +1,4 @@
+//hobyy14i
 import db from './db'
 import utils from "./utils"
 import bcrypt from 'bcrypt'
@@ -22,13 +23,13 @@ exports.userChangePassword = function(req, res) {
 		})
 		res.render('userChangePassword', err[0])
 	} else if (new_password !== repeat_new_password) {
-		res.render('userChangePassword', { "message": 'As nova senha não são iguais', "message_type": "error"});
+		res.render('userChangePassword', { "message": 'A nova senha e o repetir senha não conferem', "message_type": "error"});
 	}	else {
 		loginLocal(username, current_password, function(err, results, msg) {
 			if (!results) {
 				res.render('userChangePassword', {"message":msg.message, "message_type":"error"})
 			} else {
-				let row = results.rows[0]
+				let row = results
 				bcrypt.genSalt(10, (saltError, salt) => {
 					bcrypt.hash(new_password, salt, (hashError, hash) => {
 						db.query(`
@@ -37,7 +38,7 @@ exports.userChangePassword = function(req, res) {
 							if (err) return res.render('userChangePassword', {message:err})
 							res.render('userChangePassword',
 								{message:"Senha alterado com sucesso, para o email: "
-								+ email, message_type:"success"})
+								+ row.username, message_type:"success"})
 							})
 					});
 				});
