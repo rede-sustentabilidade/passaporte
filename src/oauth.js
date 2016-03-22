@@ -58,46 +58,48 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 
 //Used to exchange authorization codes for access token
 server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, done) {
-	let search_auth_code = db.query(`
-		SELECT ac.code, ac.client_id, ac.user_id, ac.redirect_uri
-		FROM rs.oauth_authorization_codes ac
-		WHERE ac.code = $1 and ac.client_id = $2
-	`, [code, client.client_id], function (err, results) {
-		var row = results.rows[0]
+  let search_auth_code = db.query(`
+  SELECT ac.code, ac.client_id, ac.user_id, ac.redirect_uri
+  FROM rs.oauth_authorization_codes ac
+  WHERE ac.code = $1 and ac.client_id = $2
+  `, [code, client.client_id], function (err, results) {
+    var row = results.rows[0]
 
-		if(Object.keys(results.rows).length < 1) {
-			done(null, false)
-		} else if (row.redirect_uri !== redirectURI) {
-			done(null, false)
-		}
+    if(Object.keys(results.rows).length < 1) {
+    done(null, false)
+    } else if (row.redirect_uri !== redirectURI) {
+    done(null, false)
+    } else {
 
-		let remove_auth_code = db.query(`
-			DELETE from rs.oauth_authorization_codes WHERE code = $1
-			`, [code], (err, result) => {
-			if (err) return done(err)
-			var token = utils.uid(256)
-			var refreshToken = utils.uid(256)
-			var tokenHash = crypto.createHash('sha1').update(token).digest('hex')
-			var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex')
-			var expirationDate = new Date(new Date().getTime() + (3600 * 1000))
+      let remove_auth_code = db.query(`
+      DELETE from rs.oauth_authorization_codes WHERE code = $1
+      `, [code], (err, result) => {
+        if (err) return done(err)
+        var token = utils.uid(256)
+        var refreshToken = utils.uid(256)
+        var tokenHash = crypto.createHash('sha1').update(token).digest('hex')
+        var refreshTokenHash = crypto.createHash('sha1').update(refreshToken).digest('hex')
+        var expirationDate = new Date(new Date().getTime() + (3600 * 1000))
 
-			let create_token = db.query(`
-				INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
-					VALUES ($1, $2, $3, $4);
-				`, [tokenHash, client.client_id, row.user_id, expirationDate], (err2, result2) => {
-				if (err2) return done(err2)
+        let create_token = db.query(`
+        INSERT INTO rs.oauth_access_tokens(access_token, client_id, user_id, expires)
+        VALUES ($1, $2, $3, $4);
+        `, [tokenHash, client.client_id, row.user_id, expirationDate], (err2, result2) => {
+          if (err2) return done(err2)
 
-				let query3 = db.query(`
-					INSERT INTO rs.oauth_refresh_tokens(refresh_token, client_id, user_id, expires)
-						VALUES ($1, $2, $3, $4);
-            `, [refreshTokenHash, client.client_id, row.user_id, expirationDate], (err3, result3) => {
-					if (err3) return done(err3)
-					done(null, token, refreshToken, {expires_in: expirationDate})
-				})
-			})
-		})
-    })
-	search_auth_code.on('error', done)
+          let query3 = db.query(`
+          INSERT INTO rs.oauth_refresh_tokens(refresh_token, client_id, user_id, expires)
+          VALUES ($1, $2, $3, $4);
+          `, [refreshTokenHash, client.client_id, row.user_id, expirationDate], (err3, result3) => {
+            if (err3) return done(err3)
+
+            done(null, token, refreshToken, {expires_in: expirationDate})
+          })
+        })
+      })
+    }
+  })
+  search_auth_code.on('error', done)
 }))
 
 //Refresh Token

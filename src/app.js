@@ -15,6 +15,7 @@ import registration from './registration'
 import db from './db'
 import redis from './redis'
 import cors from 'cors'
+import jwt from 'jsonwebtoken'
 
 // Express configuration
 var app = express()
@@ -96,6 +97,11 @@ app.post('/decision', oauth.decision)
 
 app.get('/user', passport.authenticate('accessToken', { session: false }), function (req, res) {
     res.json(req.user)
+})
+
+app.get('/jwt', passport.authenticate('accessToken', { session: false }), function (req, res) {
+		var token = jwt.sign({ user_id: req.user.id, role: 'admin' }, 'gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C');
+    res.json({token})
 })
 
 // development error handler
