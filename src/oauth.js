@@ -63,7 +63,8 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 		FROM rs.oauth_authorization_codes ac
 		WHERE ac.code = $1 and ac.client_id = $2
 	`, [code, client.client_id], function (err, results) {
-		let row = results.rows[0]
+		var row = results.rows[0]
+
 		if(Object.keys(results.rows).length < 1) {
 			done(null, false)
 		} else if (row.redirect_uri !== redirectURI) {
@@ -89,7 +90,7 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 				let query3 = db.query(`
 					INSERT INTO rs.oauth_refresh_tokens(refresh_token, client_id, user_id, expires)
 						VALUES ($1, $2, $3, $4);
-					`, [refreshTokenHash, client.client_id, row.user_id, expirationDate], (err3, result3) => {
+            `, [refreshTokenHash, client.client_id, row.user_id, expirationDate], (err3, result3) => {
 					if (err3) return done(err3)
 					done(null, token, refreshToken, {expires_in: expirationDate})
 				})

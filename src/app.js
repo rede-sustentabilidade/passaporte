@@ -9,11 +9,12 @@ import morgan from 'morgan'
 import errorHandler from 'errorhandler'
 import flash from 'connect-flash'
 import util from 'util'
-import auth from "./auth"
-import oauth from "./oauth"
-import registration from "./registration"
+import auth from './auth'
+import oauth from './oauth'
+import registration from './registration'
 import db from './db'
 import redis from './redis'
+import cors from 'cors'
 
 // Express configuration
 var app = express()
@@ -23,6 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())
 app.use(serveStatic('public'))
 app.use(morgan('dev'))
+app.use(cors());
 
 // Config Redis to support session store
 var RedisStore = require('connect-redis')(session);
@@ -57,7 +59,7 @@ app.get('/oauth/authorization', function(req, res) {
 
 		countQuery.on('row', (row) => {
 			if(Object.keys(row).length < 1) {
-				res.send("Client ID not found.").status(404)
+				res.send('Client ID not found.').status(404)
 			} else {
 				res.render('login', {
 					client_id : row.client_id,
