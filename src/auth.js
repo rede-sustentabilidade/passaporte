@@ -60,7 +60,7 @@ passport.use(new BasicStrategy(
       if (!client) {
         return done(null, false);
       }
-      if (client.clientSecret != password) {
+      if (client.client_secret != password) {
         return done(null, false);
       }
       return done(null, client);
@@ -84,7 +84,7 @@ passport.use(new ClientPasswordStrategy(
       if (!client) {
         return done(null, false);
       }
-      if (client.clientSecret != clientSecret) {
+      if (client.client_secret != clientSecret) {
         return done(null, false);
       }
       return done(null, client);

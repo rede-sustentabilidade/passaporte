@@ -1,5 +1,6 @@
 /*jslint node: true */
 'use strict';
+import db from '../db-psql'
 
 /**
  * This is the configuration of the clients that are allowed to connected to your authorization server.
@@ -47,13 +48,27 @@ var clients = [
  * @returns The client if found, otherwise returns null
  */
 exports.find = function (id, done) {
-  for (var i = 0, len = clients.length; i < len; i++) {
-    var client = clients[i];
-    if (client.id === id) {
-      return done(null, client);
+  let countQuery = db.query(`
+    SELECT oc.id, oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
+    where oc.id = $1;
+  `, [id], function(err, results) {
+    if (err) done(err)
+    if(results.rows.length < 0) {
+      // res.send("Client ID not found.").status(404)
+      done(null, null)
+    } else {
+      let row = results.rows[0]
+      done(null, row)
     }
-  }
-  return done(null, null);
+  })
+  countQuery.on('error', done);
+  // for (var i = 0, len = clients.length; i < len; i++) {
+  //   var client = clients[i];
+  //   if (client.id === id) {
+  //     return done(null, client);
+  //   }
+  // }
+  // return done(null, null);
 };
 
 /**
@@ -64,11 +79,25 @@ exports.find = function (id, done) {
  * @returns The client if found, otherwise returns null
  */
 exports.findByClientId = function (clientId, done) {
-  for (var i = 0, len = clients.length; i < len; i++) {
-    var client = clients[i];
-    if (client.clientId === clientId) {
-      return done(null, client);
+  let countQuery = db.query(`
+    SELECT oc.id, oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
+    where oc.client_id = $1;
+  `, [clientId], function(err, results) {
+    if (err) done(err)
+    if(results.rows.length < 0) {
+      // res.send("Client ID not found.").status(404)
+      done(null, null)
+    } else {
+      let row = results.rows[0]
+      done(null, row)
     }
-  }
-  return done(null, null);
+  })
+  countQuery.on('error', done);
+  // for (var i = 0, len = clients.length; i < len; i++) {
+  //   var client = clients[i];
+  //   if (client.clientId === clientId) {
+  //     return done(null, client);
+  //   }
+  // }
+  // return done(null, null);
 };
