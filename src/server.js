@@ -1,8 +1,8 @@
 import app from './app'
 //import models from "./models"
+import path from 'path'
 import debug from 'debug'
-import https from 'https'
-import http from 'http2'
+import http from 'http'
 import config from './config'
 import fs from 'fs'
 
@@ -12,7 +12,7 @@ debug('web:server')
  * Get port from environment and store in Express.
  */
 
-let port = normalizePort(process.env.PORT || '3000')
+let port = normalizePort(process.env.PORT || '5000')
 app.set('port', port)
 
 /**
@@ -45,14 +45,11 @@ app.set('port', port)
  //openssl req -new -key privatekey.pem -out certrequest.csr
  //openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
 
+let options = {
+  key: fs.readFileSync(path.join(__dirname, '/certs/privatekey.pem')),
+  cert: fs.readFileSync(path.join(__dirname, '/certs/certificate.pem'))
+};
 let server = http.createServer(app)
-if (process.env.NODE_ENV === 'development') {
-  var options = {
-    key: fs.readFileSync(__dirname + '/certs/privatekey.pem'),
-    cert: fs.readFileSync(__dirname + '/certs/certificate.pem')
-  };
-  server = https.createServer(options, app)
-}
 
 /**
  * Listen on provided port, on all network interfaces.
