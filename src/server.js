@@ -52,8 +52,7 @@ if (app.get('env') === 'development') {
   };
   let server = https.createServer(options, app)
 } else {
-  var options = {}
-  let server = http.createServer(options, app)
+  let server = http.createServer(app)
 }
 
 /**
