@@ -2,7 +2,7 @@ import app from './app'
 //import models from "./models"
 import debug from 'debug'
 import https from 'https'
-import http from 'http'
+import http from 'http2'
 import config from './config'
 import fs from 'fs'
 
