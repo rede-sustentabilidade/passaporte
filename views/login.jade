@@ -3,7 +3,7 @@ block content
 	#login
 		img(src="/images/logo.png", alt="Logo Rede Sustentabilidade", class="pure-img")
 		div.box-center
-			form(action='/oauth/authorization',method='post', class="pure-form pure-form-stacked")
+			form(action='/login',method='post', class="pure-form pure-form-stacked")
 				each item in messages
 					p.pure-alert-error= item
 				label(for='username') E-mail
