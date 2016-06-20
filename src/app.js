@@ -18,7 +18,6 @@ import site from './site'
 import token from './token'
 
 import registration from './registration'
-import db from './db'
 import redis from './redis'
 import cors from 'cors'
 import jwt from 'jsonwebtoken'

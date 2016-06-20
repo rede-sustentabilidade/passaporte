@@ -25,6 +25,7 @@ exports.info = [
     // `BearerStrategy`.  It is typically used to indicate scope of the token,
     // and used in access control checks.  For illustrative purposes, this
     // example simply returns the scope in the response.
-    res.json({id: req.user.id, email: req.user.email, name: req.user.name, scope: req.authInfo.scope});
+    var name = req.user.username.match(/^([^@]*)@/)[1];
+    res.json({id: req.user.id, email: req.user.username, name: name, scope: req.authInfo.scope});
   }
 ];

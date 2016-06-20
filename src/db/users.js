@@ -1,5 +1,6 @@
 /*jslint node: true */
 'use strict';
+import db from '../db-psql'
 
 /**
  * This is the configuration of the users that are allowed to connected to your authorization server.
@@ -34,13 +35,26 @@ var users = [
  * @returns The user if found, otherwise returns null
  */
 exports.find = function (id, done) {
-  for (var i = 0, len = users.length; i < len; i++) {
-    var user = users[i];
-    if (user.id === id) {
-      return done(null, user);
-    }
-  }
-  return done(null, null);
+	let query = db.query(`
+		SELECT u.id, u.username, u.password from rs.users u
+		where u.id = $1;
+	`, [id], function(err, results) {
+		if (err) { done(err) }
+		let row = results.rows[0]
+		if(parseInt(results.rows.length) < 1) {
+			return done(null, null, {message: 'ID não encontrado.'});
+		} else {
+			return done(null, row)
+		}
+	});
+
+  // for (var i = 0, len = users.length; i < len; i++) {
+  //   var user = users[i];
+  //   if (user.id === id) {
+  //     return done(null, user);
+  //   }
+  // }
+  // return done(null, null);
 };
 
 /**
@@ -51,11 +65,24 @@ exports.find = function (id, done) {
  * @returns The user if found, otherwise returns null
  */
 exports.findByUsername = function (username, done) {
-  for (var i = 0, len = users.length; i < len; i++) {
-    var user = users[i];
-    if (user.username === username) {
-      return done(null, user);
+  let query = db.query(`
+    SELECT u.id, u.username, u.password from rs.users u
+    where lower(u.username) = lower($1);
+  `, [username], function(err, results) {
+    if (err) { done(err) }
+    let row = results.rows[0]
+    if(parseInt(results.rows.length) < 1) {
+      return done(null, null, {message: 'E-mail não encontrado.'})
+    } else {
+      return done(null, row);
     }
-  }
-  return done(null, null);
+  });
+
+  // for (var i = 0, len = users.length; i < len; i++) {
+  //   var user = users[i];
+  //   if (user.username === username) {
+  //     return done(null, user);
+  //   }
+  // }
+  // return done(null, null);
 };
