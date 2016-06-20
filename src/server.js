@@ -2,6 +2,7 @@ import app from './app'
 //import models from "./models"
 import debug from 'debug'
 import https from 'https'
+import http from 'http'
 import config from './config'
 import fs from 'fs'
 
@@ -44,15 +45,16 @@ app.set('port', port)
  //openssl req -new -key privatekey.pem -out certrequest.csr
  //openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
 
-var options = {}
 if (app.get('env') === 'development') {
   var options = {
     key: fs.readFileSync(__dirname + '/certs/privatekey.pem'),
     cert: fs.readFileSync(__dirname + '/certs/certificate.pem')
   };
+  let server = https.createServer(options, app)
+} else {
+  var options = {}
+  let server = http.createServer(options, app)
 }
-
-let server = https.createServer(options, app)
 
 /**
  * Listen on provided port, on all network interfaces.
