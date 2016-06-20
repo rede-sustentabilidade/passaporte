@@ -45,10 +45,10 @@ app.set('port', port)
  //openssl req -new -key privatekey.pem -out certrequest.csr
  //openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
 
-let options = {
-  key: fs.readFileSync(path.join(__dirname, '/certs/privatekey.pem')),
-  cert: fs.readFileSync(path.join(__dirname, '/certs/certificate.pem'))
-};
+// let options = {
+//   key: fs.readFileSync(path.join(__dirname, '/certs/privatekey.pem')),
+//   cert: fs.readFileSync(path.join(__dirname, '/certs/certificate.pem'))
+// };
 let server = http.createServer(app)
 
 /**
