@@ -40,10 +40,10 @@ exports.find = function (id, done) {
 		where u.id = $1;
 	`, [id], function(err, results) {
 		if (err) { done(err) }
-		let row = results.rows[0]
 		if(parseInt(results.rows.length) < 1) {
 			return done(null, null, {message: 'ID não encontrado.'});
 		} else {
+		  let row = results.rows[0]
 			return done(null, row)
 		}
 	});
@@ -70,10 +70,10 @@ exports.findByUsername = function (username, done) {
     where lower(u.username) = lower($1);
   `, [username], function(err, results) {
     if (err) { done(err) }
-    let row = results.rows[0]
     if(parseInt(results.rows.length) < 1) {
       return done(null, null, {message: 'E-mail não encontrado.'})
     } else {
+      let row = results.rows[0]
       return done(null, row);
     }
   });
