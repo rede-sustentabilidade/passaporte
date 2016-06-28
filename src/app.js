@@ -29,7 +29,7 @@ app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())
 app.use(serveStatic('public'))
-app.use(morgan('dev'))
+app.use(morgan('combined'))
 app.use(cors());
 
 // Config Redis to support session store
