@@ -7,6 +7,7 @@ import expressValidator from 'express-validator'
 import serveStatic from 'serve-static'
 import morgan from 'morgan'
 import errorHandler from 'errorhandler'
+import raven from 'raven'
 import flash from 'connect-flash'
 import util from 'util'
 import auth from './auth'
@@ -45,6 +46,18 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
 
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+	app.use(errorHandler())
+} else {
+  // The request handler must be the first item
+  app.use(raven.middleware.express.requestHandler(process.env.SENTRY_DSN));
+
+  // The error handler must be before any other error middleware
+  app.use(raven.middleware.express.errorHandler(process.env.SENTRY_DSN));
+}
+
 // Config Routes
 app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
 app.post('/client/registration', registration.registerClient)
@@ -75,67 +88,6 @@ app.get('/api/clientinfo', client.info);
 // Mimicking google's token info endpoint from
 // https://developers.google.com/accounts/docs/OAuth2UserAgent#validatetoken
 app.get('/api/tokeninfo', token.info);
-
-
-// app.get('/oauth/authorization', function(req, res) {
-// 	if (!req.body.client_id || !req.body.response_type || !req.body.redirect_uri) {
-// 		let countQuery = db.query(`
-// 			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
-// 			limit 1
-// 		`);
-//     console.log(countQuery);
-//
-// 		countQuery.on('row', (row) => {
-// 			if(Object.keys(row).length < 1) {
-// 				res.send('Client ID not found.').status(404)
-// 			} else {
-// 				res.render('login', {
-// 					client_id : row.client_id,
-// 					redirect_uri: row.redirect_uri,
-// 					response_type: 'code',
-// 					messages: req.flash('error')
-// 				})
-// 			}
-// 		})
-// 	} else {
-// 		res.render('login', {
-// 			client_id : req.query.client_id,
-// 			redirect_uri: req.query.redirect_uri,
-// 			response_type: req.query.response_type,
-// 			messages: req.flash('error')
-// 		})
-// 	}
-// })
-//
-// app.post('/oauth/authorization', passport.authenticate('local', {
-// 		failureFlash: true,
-// 		failureRedirect: '/oauth/authorization'
-// 	}), function(req, res) {
-// 		//It is not essential for the flow to redirect here,
-// 		// it would also be possible to call this directly
-// 		res.redirect('/authorization?response_type=' + req.body.response_type +
-// 					 '&client_id=' + req.body.client_id +
-// 					 '&redirect_uri=' + req.body.redirect_uri)
-// })
-//
-// app.post('/oauth/token', oauth.token)
-// app.get('/authorization', oauth.authorization)
-// app.post('/decision', oauth.decision)
-//
-// app.get('/user', passport.authenticate('accessToken', { session: false }), function (req, res) {
-//     res.json(req.user)
-// })
-//
-// app.get('/jwt', passport.authenticate('accessToken', { session: false }), function (req, res) {
-// 		var token = jwt.sign({ user_id: req.user.id, role: 'admin' }, 'gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C');
-//     res.json({token})
-// })
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-	app.use(errorHandler())
-}
 
 app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 // catch 404 and forward to error handler
