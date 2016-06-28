@@ -25,6 +25,17 @@ import jwt from 'jsonwebtoken'
 
 // Express configuration
 var app = express()
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+	app.use(errorHandler())
+} else {
+  // The request handler must be the first item
+  app.use(raven.middleware.express.requestHandler(process.env.SENTRY_DSN));
+  console.log('error log sentry')
+  // The error handler must be before any other error middleware
+  app.use(raven.middleware.express.errorHandler(process.env.SENTRY_DSN));
+}
 app.set('views', __dirname + '/../views')
 app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -45,18 +56,6 @@ app.use(bodyParser.json());
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-	app.use(errorHandler())
-} else {
-  // The request handler must be the first item
-  app.use(raven.middleware.express.requestHandler(process.env.SENTRY_DSN));
-
-  // The error handler must be before any other error middleware
-  app.use(raven.middleware.express.errorHandler(process.env.SENTRY_DSN));
-}
 
 // Config Routes
 app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
