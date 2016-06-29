@@ -29,19 +29,17 @@ var app = express()
 // will print stacktrace
 if (app.get('env') === 'development') {
 	app.use(errorHandler())
+  app.use(morgan('combined'))
 } else {
   // The request handler must be the first item
   app.use(raven.middleware.express.requestHandler(process.env.SENTRY_DSN));
-  console.log('error log sentry')
-  // The error handler must be before any other error middleware
-  app.use(raven.middleware.express.errorHandler(process.env.SENTRY_DSN));
+  console.log('error log request handler sentry')
 }
 app.set('views', __dirname + '/../views')
 app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())
 app.use(serveStatic('public'))
-app.use(morgan('combined'))
 app.use(cors());
 
 // Config Redis to support session store
@@ -87,6 +85,13 @@ app.get('/api/clientinfo', client.info);
 // Mimicking google's token info endpoint from
 // https://developers.google.com/accounts/docs/OAuth2UserAgent#validatetoken
 app.get('/api/tokeninfo', token.info);
+
+if (app.get('env') === 'production') {
+  console.log('error log error handler sentry')
+  // The error handler must be before any other error middleware
+  app.use(raven.middleware.express.errorHandler(process.env.SENTRY_DSN));
+}
+
 
 app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 // catch 404 and forward to error handler
