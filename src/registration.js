@@ -1,4 +1,4 @@
-import db from './db'
+import db from './db-psql'
 import utils from "./utils"
 import bcrypt from 'bcrypt'
 import mailer from './mailer'
