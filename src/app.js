@@ -9,9 +9,9 @@ import morgan from 'morgan'
 import errorHandler from 'errorhandler'
 import raven from 'raven'
 import flash from 'connect-flash'
-import util from 'util'
+
+import util from './util'
 import auth from './auth'
-//import oauth from './oauth'
 import oauth2 from './oauth2'
 import user from './user'
 import client from './client'
@@ -35,6 +35,7 @@ if (app.get('env') === 'development') {
   app.use(raven.middleware.express.requestHandler(process.env.SENTRY_DSN));
   console.log('error log request handler sentry')
 }
+
 app.set('views', __dirname + '/../views')
 app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -46,7 +47,6 @@ app.use(cors());
 var RedisStore = require('connect-redis')(session);
 var rs = new RedisStore({ client: redis, maxAge: 24 * 60 * 60 * 1000 });
 
-
 // Config Session
 app.use(cookieParser('rede-sustentabilidade.org.br'))
 app.use(session({ store: rs, secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000*60*24*7 } }))
@@ -54,6 +54,7 @@ app.use(bodyParser.json());
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
+app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 
 // Config Routes
 app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
@@ -92,8 +93,6 @@ if (app.get('env') === 'production') {
   app.use(raven.middleware.express.errorHandler(process.env.SENTRY_DSN));
 }
 
-
-app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
 	var err = new Error('Not Found');
