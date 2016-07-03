@@ -10,7 +10,7 @@ import errorHandler from 'errorhandler'
 import raven from 'raven'
 import flash from 'connect-flash'
 
-import util from './util'
+import util from './utils'
 import auth from './auth'
 import oauth2 from './oauth2'
 import user from './user'
