@@ -9,7 +9,7 @@ var login = require('connect-ensure-login');
 import flash from 'connect-flash'
 
 exports.index = function (req, res) {
-  res.redirect(app.locals.url_site)
+  res.redirect(req.app.locals.url_site)
 };
 
 exports.loginForm = function (req, res) {
