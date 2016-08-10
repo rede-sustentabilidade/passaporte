@@ -10,15 +10,15 @@ Essas urls são utilizando no frontend para interação com usuário final:
  * ```/client/registration``` - Cadastro de novos clientes que poderão requisitar de dados
  * ```/lost_password``` - Formulário para resgatar senha por e-mail
  * ```/change_password``` - Formulário para trocar senha se sabe senha atual
- * ```/dialog/authorize``` - Formulário de login de usuário ( url que deve ser enviado o usuário )
+ * ```GET /dialog/authorize``` - Formulário de login de usuário ( url que deve ser enviado o usuário ) os paramentros que devem ser enviados aqui são: state=VHa0gxGFi8dZ2xK364p3hLMVoA8f7fz0 - response_type=code - approval_prompt=auto - client_id=xxxx - redirect_uri=https%3A%2F%2Fredesustentabilidade.org.br%2F
  * ```/dialog/authorize/decision``` - Diálogo de aprovação do uso dos seus dados pelo Site
  * ```/oauth/token``` - Retorna token válido se dados da requisição estiverem corretos
  
 As urls abaixo são acessadas a partir do client e devem enviar no cabeçalho a chave "Authorization" com o valor "Baurer valor_da_chave_access_token"
 
- * ```/api/userinfo``` - Based on JWT Token return user info
- * ```/api/clientinfo``` - Based on JWT Token retrun client info
- * ```/api/tokeninfo``` - Based on Access Token return from passaporte return if token is valid
+ * ```GET /api/userinfo``` - Based on JWT Token return user info
+ * ```GET /api/clientinfo``` - Based on JWT Token retrun client info
+ * ```GET /api/tokeninfo``` - Based on Access Token return from passaporte return if token is valid
 
 Baseado em : https://github.com/reneweb/oauth2orize_implicit_example
 
