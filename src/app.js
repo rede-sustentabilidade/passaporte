@@ -41,7 +41,12 @@ app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())
 app.use(serveStatic('public'))
-app.use(cors());
+app.use(cors({
+  "origin": "*",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  "preflightContinue": true,
+  "credentials": true
+}));
 
 // Config Redis to support session store
 var RedisStore = require('connect-redis')(session);
