@@ -45,7 +45,8 @@ app.use(cors({
   "origin": "*",
   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
   "preflightContinue": true,
-  "credentials": true
+  "credentials": true,
+  "origin": [/redesustentabilidade.org.br$/, /\.dev$/]
 }));
 
 // Config Redis to support session store
