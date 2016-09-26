@@ -45,13 +45,11 @@ app.use(serveStatic('public'))
 const corsOptions = {
     "origin": "*",
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    "preflightContinue": true,
     "credentials": true,
     "origin": [/redesustentabilidade.org.br$/, /localhost\.dev:3000$/]
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 // Config Redis to support session store
 var RedisStore = require('connect-redis')(session);
@@ -102,6 +100,8 @@ if (app.get('env') === 'production') {
   // The error handler must be before any other error middleware
   app.use(raven.middleware.express.errorHandler(process.env.SENTRY_DSN));
 }
+
+app.options('*', cors(corsOptions));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
