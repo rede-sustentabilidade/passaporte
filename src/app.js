@@ -44,7 +44,7 @@ app.use(serveStatic('public'))
 
 const corsOptions = {
     "origin": "*",
-    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     "preflightContinue": true,
     "credentials": true,
     "origin": [/redesustentabilidade.org.br$/, /localhost\.dev:3000$/]
