@@ -14,7 +14,8 @@ exports.index = function (req, res) {
 
 exports.loginForm = function (req, res) {
   res.render('login', {
-    messages: flash('error')
+    messages: flash('error'),
+    sess: req.session.query
   });
 };
 

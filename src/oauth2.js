@@ -221,6 +221,10 @@ server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken
  * first, and rendering the `dialog` view.
  */
 exports.authorization = [
+  function (req, res, next) {
+    req.session.query = req.query;
+    next();
+  },
   login.ensureLoggedIn(),
   server.authorization(function (clientID, redirectURI, scope, done) {
     db.clients.findByClientId(clientID, function (err, client) {

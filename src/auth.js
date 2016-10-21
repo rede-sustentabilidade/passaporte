@@ -13,6 +13,7 @@ import bcrypt from 'bcrypt'
 
 var loginLocal = function (username, password, done) {
   db.users.findByUsername(username, function (err, user) {
+
     if (err) {
       return done(err);
     }
@@ -21,8 +22,9 @@ var loginLocal = function (username, password, done) {
     }
 
     bcrypt.compare(password, user.password, function (err, res) {
-      if (!res) return done(null, false, {message: 'Senha inválida'})
-      return done(null, user)
+      if (!res) return done(null, false, {error: 'Senha inválida'})
+      done(null, user);
+      return;
     })
     // if (user.password != password) {
     //   return done(null, false);
