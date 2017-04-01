@@ -43,10 +43,9 @@ app.use(expressValidator())
 app.use(serveStatic('public'))
 
 const corsOptions = {
-    "origin": "*",
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     "credentials": true,
-    "origin": [/redesustentabilidade.org.br$/, /localhost\.dev:3000$/]
+    "origin": [/redesustentabilidade.org.br$/, /localhost\.dev:3000$/, /konsento.org$/]
 };
 
 app.use(cors(corsOptions));
