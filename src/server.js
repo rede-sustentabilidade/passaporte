@@ -3,6 +3,7 @@ import app from './app'
 import path from 'path'
 import debug from 'debug'
 import http from 'http'
+import https from 'https'
 import config from './config'
 import fs from 'fs'
 
@@ -39,17 +40,24 @@ app.set('port', port)
    });
  }, config.db.timeToCheckExpiredTokens * 1000);
 
- //TODO: Change these for your own certificates.  This was generated
+//TODO: Change these for your own certificates.  This was generated
  //through the commands:
  //openssl genrsa -out privatekey.pem 1024
  //openssl req -new -key privatekey.pem -out certrequest.csr
  //openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
+if (process.env.NODE_ENV == 'development') {
+	let options = {
+		key: fs.readFileSync(path.join(__dirname, '/../cert/rede.passaporte.key')),
+		cert: fs.readFileSync(path.join(__dirname, '/../cert/rede.passaporte.cert'))
+	}; 
 
-// let options = {
-//   key: fs.readFileSync(path.join(__dirname, '/certs/privatekey.pem')),
-//   cert: fs.readFileSync(path.join(__dirname, '/certs/certificate.pem'))
-// };
-let server = http.createServer(app)
+	let server = https.createServer(options, app)
+} else {
+	let server = http.createServer(app)
+}
+ 
+
+
 
 /**
  * Listen on provided port, on all network interfaces.
