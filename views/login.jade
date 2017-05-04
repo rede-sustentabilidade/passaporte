@@ -3,13 +3,9 @@ block content
 	#login
 		img(src="/images/logo.png", alt="Logo Rede Sustentabilidade", class="pure-img")
 		div.box-center
-			form(action='/oauth/authorization',method='post', class="pure-form pure-form-stacked")
+			form(action='/login',method='post', class="pure-form pure-form-stacked")
 				each item in messages
 					p.pure-alert-error= item
-				p.pure-alert.pure-alert-warning
-					| Estamos em obras para aprimorar o ambiente virtual da REDE, por isso enviamos uma nova senha pra você. Caso não tenha recebido&nbsp;
-					a(href="/registration") clique aqui
-					| .
 				label(for='username') E-mail
 				input(id='username', type='email',value='', name='username', class='pure-input-1', required)
 				label(for='password') Senha
@@ -18,9 +14,9 @@ block content
 					input(id="remember", type="checkbox")
 					| Lembrar-me
 				label(class="right")
-					input(id='client_id', type='hidden',value='#{client_id}', name='client_id')
-					input(id='redirect_uri', type='hidden',value='#{redirect_uri}', name='redirect_uri')
-					input(id='response_type', type='hidden',value='#{response_type}', name='response_type')
+					input(id='client_id', type='hidden',value='#{sess.client_id}', name='client_id')
+					input(id='redirect_uri', type='hidden',value='#{sess.redirect_uri}', name='redirect_uri')
+					input(id='response_type', type='hidden',value='#{sess.response_type}', name='response_type')
 					input(type='submit',value='Entrar', class='pure-button pure-button-primary')
 		p.box-bottom
 			a(href="/registration") Registre-se!

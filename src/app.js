@@ -7,29 +7,64 @@ import expressValidator from 'express-validator'
 import serveStatic from 'serve-static'
 import morgan from 'morgan'
 import errorHandler from 'errorhandler'
+import raven from 'raven'
 import flash from 'connect-flash'
-import util from 'util'
+
+import util from './utils'
+import auth from './auth'
+import oauth2 from './oauth2'
+import user from './user'
+import client from './client'
+import site from './site'
+import token from './token'
+
+import registration from './registration'
+import redis from './redis'
 import cors from 'cors'
-import auth from "./auth"
-import oauth from "./oauth"
-import registration from "./registration"
-import db from './db'
+import jwt from 'jsonwebtoken'
 
 // Express configuration
 var app = express()
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+	app.use(errorHandler())
+  app.use(morgan('combined'))
+} else {
+  // The request handler must be the first item
+  app.use(raven.middleware.express.requestHandler(process.env.SENTRY_DSN));
+  console.log('error log request handler sentry')
+}
+
 app.set('views', __dirname + '/../views')
 app.set('view engine', 'jade')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(expressValidator())
 app.use(serveStatic('public'))
-app.use(morgan('dev'))
+
+const corsOptions = {
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    "credentials": true,
+    "origin": [/redesustentabilidade.org.br$/, /localhost\.dev:3000$/]
+};
+
+app.use(cors(corsOptions));
+
+// Config Redis to support session store
+var RedisStore = require('connect-redis')(session);
+var rs = new RedisStore({ client: redis, maxAge: 24 * 60 * 60 * 1000 });
+
+// Config Session
 app.use(cookieParser('rede-sustentabilidade.org.br'))
-app.use(session({ secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000*60*24*7 }, resave: true, saveUninitialized: true }))
+app.use(session({ store: rs, secret: 'rede-sustentabilidade.org.br', cookie: { maxAge: 60000*60*24*7 } }))
+app.use(bodyParser.json());
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash());
-app.use(cors());
+app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 
+// Config Routes
 app.get('/client/registration', function(req, res) { res.render('clientRegistration') })
 app.post('/client/registration', registration.registerClient)
 
@@ -42,90 +77,32 @@ app.post('/lost_password', registration.userLostPassword)
 app.get('/change_password', function(req, res) { res.render('userChangePassword') })
 app.post('/change_password', registration.userChangePassword)
 
-var renderAuthorizationPage = function(req, res) {
-	if (!req.query.client_id || !req.query.response_type || !req.query.redirect_uri) {
-		let countQuery = db.query(`
-			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
-			limit 1
-		`);
 
-		countQuery.on('row', (row) => {
-			if(Object.keys(row).length < 1) {
-				res.send("Client ID not found.").status(404)
-			} else {
-				res.render('login', {
-					client_id : row.client_id,
-					redirect_uri: row.redirect_uri,
-					response_type: 'code',
-					messages: req.flash('error')
-				})
-			}
-		})
-	} else {
-		var client_id = req.query.client_id,
-		  redirect_uri = req.query.redirect_uri,
-			response_type = req.query.response_type;
-		let query = db.query(`
-			SELECT oc.name, oc.client_id, oc.client_secret, oc.redirect_uri from rs.oauth_clients oc
-			where oc.client_id = $1;
-		`, [req.query.client_id], function(err, results) {
-			if (err) {
-				res.send("Internal Error.").status(500)
-			}
-			let row = results.rows[0];
-			if (row.redirect_uri !== redirect_uri) {
-				// Deveria responder com erro, mas para evitar possíveis problemas com
-				// codigo legado, vamos simplesmente substituir a uri invalida pela
-				// armazenada no banco de dados.
-				// res.send("Invalid Redirect URI.").status(401)
-				redirect_uri = row.redirect_uri;
-			}
-			res.render('login', {
-				client_id : client_id,
-				redirect_uri: redirect_uri,
-				response_type: req.query.response_type,
-				messages: req.flash('error')
-			})
+app.get('/', site.index);
+app.get('/login', site.loginForm);
+app.post('/login', site.login);
+app.get('/logout', site.logout);
+app.get('/account', site.account);
 
-		});
-	}
+app.get('/dialog/authorize', oauth2.authorization);
+app.post('/dialog/authorize/decision', oauth2.decision);
+app.post('/oauth/token', oauth2.token);
+
+app.get('/api/userinfo', user.info);
+app.get('/api/clientinfo', client.info);
+
+// Mimicking google's token info endpoint from
+// https://developers.google.com/accounts/docs/OAuth2UserAgent#validatetoken
+app.get('/api/tokeninfo', token.info);
+
+if (app.get('env') === 'production') {
+  console.log('error log error handler sentry')
+  // The error handler must be before any other error middleware
+  app.use(raven.middleware.express.errorHandler(process.env.SENTRY_DSN));
 }
 
-app.get('/oauth/authorization', renderAuthorizationPage);
-app.get('/oauth/authorize', renderAuthorizationPage);
+app.options('*', cors(corsOptions));
 
-app.post('/oauth/authorization', passport.authenticate('local', {
-		failureFlash: true,
-		failureRedirect: '/oauth/authorization'
-	}), function(req, res) {
-		//It is not essential for the flow to redirect here,
-		// it would also be possible to call this directly
-		res.redirect('/authorization?response_type=' + req.body.response_type +
-					 '&client_id=' + req.body.client_id +
-					 '&redirect_uri=' + req.body.redirect_uri)
-})
-
-app.post('/oauth/token', oauth.token)
-app.get('/authorization', oauth.authorization)
-app.post('/decision', oauth.decision)
-
-app.get('/user', passport.authenticate('accessToken', { session: false }), function (req, res) {
-    res.json(req.user)
-})
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-	// app.use(function(err, req, res, next) {
-	// 	res.status(err.status || 500);
-	// 	res.render('error', {
-	// 		message: err.message,
-	// 		error: err
-	// 	})
-	// })
-	app.use(errorHandler())
-}
-app.locals.url_site = process.env['DEFAULT_WEBSITE_URL'] || 'http://rede.site'
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
 	var err = new Error('Not Found');

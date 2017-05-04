@@ -1,7 +1,11 @@
 import app from './app'
 //import models from "./models"
+import path from 'path'
 import debug from 'debug'
 import http from 'http'
+import https from 'https'
+import config from './config'
+import fs from 'fs'
 
 debug('web:server')
 
@@ -9,14 +13,51 @@ debug('web:server')
  * Get port from environment and store in Express.
  */
 
-let port = normalizePort(process.env.PORT || '3000')
+let port = normalizePort(process.env.PORT || '5000')
 app.set('port', port)
 
 /**
  * Create HTTP server.
  */
 
-let server = http.createServer(app)
+ var db = require('./' + config.db.type + '/index');
+ if (config.db.type === 'mongodb') {
+   console.log('Using MongoDB for the data store');
+ } else if (config.db.type === 'db') {
+   console.log('Using MemoryStore for the data store');
+ } else {
+   //We have no idea here
+   throw new Error("Within config/index.js the db.type is unknown: " + config.db.type);
+ }
+
+ //From time to time we need to clean up any expired tokens
+ //in the database
+ setInterval(function () {
+   db.accessTokens.removeExpired(function (err) {
+     if (err) {
+       console.error("Error removing expired tokens");
+     }
+   });
+ }, config.db.timeToCheckExpiredTokens * 1000);
+
+//TODO: Change these for your own certificates.  This was generated
+ //through the commands:
+ //openssl genrsa -out privatekey.pem 1024
+ //openssl req -new -key privatekey.pem -out certrequest.csr
+ //openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
+if (process.env.NODE_ENV == 'development') {
+	let options = {
+		key: fs.readFileSync(path.join(__dirname, '/../cert/rede.passaporte.key')),
+		cert: fs.readFileSync(path.join(__dirname, '/../cert/rede.passaporte.cert'))
+	}; 
+
+	let server = https.createServer(options, app)
+} else {
+	let server = http.createServer(app)
+}
+ 
+
+
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -84,4 +125,3 @@ function onListening() {
 	: 'port ' + addr.port
 	debug('Listening on ' + bind)
 }
-
