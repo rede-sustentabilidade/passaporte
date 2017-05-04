@@ -45,15 +45,16 @@ app.set('port', port)
  //openssl genrsa -out privatekey.pem 1024
  //openssl req -new -key privatekey.pem -out certrequest.csr
  //openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
+let server;
 if (process.env.NODE_ENV == 'development') {
 	let options = {
 		key: fs.readFileSync(path.join(__dirname, '/../cert/rede.passaporte.key')),
 		cert: fs.readFileSync(path.join(__dirname, '/../cert/rede.passaporte.cert'))
 	}; 
 
-	let server = https.createServer(options, app)
+	server = https.createServer(options, app)
 } else {
-	let server = http.createServer(app)
+	server = http.createServer(app)
 }
  
 
