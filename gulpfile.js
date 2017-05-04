@@ -29,13 +29,13 @@ gulp.task('views', function() {
 // Run Hapi server and realod on changes
 gulp.task('serve', function() {
 	'use strict';
-	$.nodemon({
-		script: 'src/server.js',
-		exec: './node_modules/.bin/babel-node',
-		ignore: ['gulpfile.js', 'node_modules', 'test']
-	});
-
-	gulp.watch('./stylus/**/*.styl', ['stylus']);
+  gulp.watch('./src/**/*.js', ['build']);
+  gulp.watch('./stylus/**/*.styl', ['stylus']);
+  $.nodemon({
+    script: 'dist/server.js'
+//    exec: './node_modules/.bin/babel-node',
+//    ignore: ['gulpfile.js', 'node_modules', 'test']
+  });
 });
 
 // Run lab tests
