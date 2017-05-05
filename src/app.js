@@ -46,7 +46,7 @@ const corsOptions = {
     "origin": "*",
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     "credentials": true,
-    "origin": [/redesustentabilidade.org.br$/, /localhost\.dev:3000$/]
+    "origin": [/redesustentabilidade.org.br$/, /redesustentabilidade.net$/, /localhost\.dev:3000$/]
 };
 
 app.use(cors(corsOptions));
