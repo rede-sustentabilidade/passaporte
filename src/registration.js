@@ -1,4 +1,5 @@
 import db from './db-psql'
+import db2 from './db-psql'
 import utils from "./utils"
 import bcrypt from 'bcrypt'
 import mailer from './mailer'
@@ -96,6 +97,14 @@ exports.registerUser = function(req, res) {
 	var errors = req.validationErrors()
 	if (errors) {
 		res.render('userRegistration', {message:errors})
+		res.format({
+			html: () => {
+				res.render('userRegistration', {message:errors})
+			},
+			json: () => {
+				res.json({message:errors, error: true});
+			}
+		});
 	} else {
 		let email = req.body['email'],
 			countQuery = db.query(`
@@ -104,8 +113,32 @@ exports.registerUser = function(req, res) {
 			`, [email]);
 
 		countQuery.on('row', (row) => {
+			let passaporte = false;
 			if(parseInt(row.count) > 0) {
-				res.render('userRegistration', {message:"E-mail já cadastrado."})
+				passaporte = true;
+				let countQueryAfiliado = db2.query(`
+					SELECT count(1) from rs.afiliados u
+					where lower(u.email) = lower($1);
+				`, [email]);
+
+				countQueryAfiliado.on('row', (rowAfiliado) => {
+					let afiliado = false;
+					if(parseInt(rowAfiliado.count) > 0) {
+						afiliado = true;
+					}
+					getUserId(email, function(idUser) {
+						res.format({
+							html: () => {
+								res.render('userRegistration', {message:"E-mail já cadastrado."})
+							},
+							json: () => {
+								res.json({passaporte: passaporte, afiliado: afiliado, idUser: idUser});
+							}
+						});
+					});
+				});
+				
+				
 			} else {
 				let password = Math.random().toString(36).slice(-8)
 				bcrypt.genSalt(10, (saltError, salt) => {
@@ -124,15 +157,39 @@ A senha do seu login é: ${password}
 Agora você pode acessar o site da rede e autenticar-se
 ${req.app.locals.url_site}/?login=1
 `, function () {
-								res.render('userRegistration',
-									{message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: "
-									+ email, message_type:"success"})
+								
+								getUserId(email, function(idUser) {
+									res.format({
+										html: res.render('userRegistration',
+												{message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: "
+												+ email, message_type:"success"}),
+										json: res.json({
+												passaporte: false, 
+												afiliado: false,
+												idUser: idUser})
+									});
+								});
+								
 								})
 							})
 					});
 				});
 			}
 		});
+
+		// get user_id 
+		function getUserId(email, callback) {
+			let idQuery = db.query(`
+				SELECT u.id from rs.users u
+				where lower(u.username) = lower($1);
+			`, [email]);
+
+			idQuery.on('row', (row) => {
+				callback(row.id);
+			});
+		}
+
+
 	}
 }
 
