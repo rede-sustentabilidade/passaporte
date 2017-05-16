@@ -96,7 +96,6 @@ exports.registerUser = function(req, res) {
 
 	var errors = req.validationErrors()
 	if (errors) {
-		res.render('userRegistration', {message:errors})
 		res.format({
 			html: () => {
 				res.render('userRegistration', {message:errors})
@@ -158,17 +157,23 @@ Agora você pode acessar o site da rede e autenticar-se
 ${req.app.locals.url_site}/?login=1
 `, function () {
 								
-								getUserId(email, function(idUser) {
-									res.format({
-										html: res.render('userRegistration',
-												{message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: "
-												+ email, message_type:"success"}),
-										json: res.json({
-												passaporte: false, 
-												afiliado: false,
-												idUser: idUser})
+									getUserId(email, function(idUser) {
+										res.format({
+											html: () => {
+												res.render('userRegistration', {
+													message:"Cadastro realizado com sucesso, instruções foram enviadas para o email: "
+													+ email, message_type:"success"
+												})
+											},										
+											json: () => {
+												res.json({
+													passaporte: false, 
+													afiliado: false,
+													idUser: idUser
+												})
+											}
+										});
 									});
-								});
 								
 								})
 							})
