@@ -10,7 +10,7 @@ gulp.task('stylus', function(){
 
 
 // Transpile ES6 source files into JavaScript
-gulp.task('build', ['views'], function() {
+gulp.task('build', ['views', 'public'], function() {
 	'use strict';
 
 	return gulp.src(['src/**/*.js'])
@@ -24,6 +24,12 @@ gulp.task('views', function() {
 	'use strict';
 	return gulp.src(['src/views/**/*.jade'])
 		.pipe(gulp.dest('dist/views/'));
+});
+
+gulp.task('public', function() {
+	'use strict';
+	return gulp.src(['public/**'])
+		.pipe(gulp.dest('dist/public'));
 });
 
 // Run Hapi server and realod on changes
