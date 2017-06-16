@@ -149,7 +149,14 @@ exports.registerUser = function(req, res) {
 
 							let m = new mailer()
 							m.send (email, 'Informações do cadastro',
-`Você iniciou o cadastro no site da Rede Sustentabilidade.
+`Olá, agora você é um conectad@ à Rede. 
+Se solicitou sua filiação, aguarde contato da direção estadual da Rede de sua região. 
+
+
+
+Atenciosamente, 
+Comissão Executiva Nacional, 
+Rede Sustentabilidade
 
 A senha do seu login é: ${password}
 
