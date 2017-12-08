@@ -36,9 +36,11 @@ class Mailer {
 			text: content
 		}, function (err, info) {
 			if (err) {
+				console.error('Error:'+ JSON.stringify(err));
 				return done('Não foi possível enviar o email de teste.', null)
 			} else {
 				that.validate = true
+				console.log('Info:'+ JSON.stringify(info));
 				return done(null, info)
 			}
 		});
