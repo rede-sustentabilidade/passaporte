@@ -6,6 +6,9 @@ class Mailer {
 		this.mail_secret    = process.env['MAIL_SECRET']
 		this.validate = false
 
+		console.log('MAIL_KEY:'+ this.mail_key)
+		console.log('MAIL_SECRET:'+ this.mail_secret)
+
 		this.transporter = nodemailer.createTransport(sesTransport({
 			accessKeyId: this.mail_key,
 			secretAccessKey: this.mail_secret,
