@@ -149,13 +149,12 @@ exports.registerUser = function(req, res) {
 
 							let m = new mailer()
 							m.send (email, 'Informações do cadastro',
-`Olá, agora você é um conectad@ à Rede. 
-Se solicitou sua filiação, aguarde contato da direção estadual da Rede de sua região. 
+`Olá, agora você é um conectad@ à rede.
 
+Para dar prosseguimento à sua filiação, favor fazer contato com a coordenação de organização de seu estado pelo telefone que está disponível em www.redesustentabilidade.org.br/contatos-regionais
 
-
-Atenciosamente, 
-Comissão Executiva Nacional, 
+Atenciosamente
+Comissão Executiva Nacional
 Rede Sustentabilidade
 
 A senha do seu login é: ${password}
