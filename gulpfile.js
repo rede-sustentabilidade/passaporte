@@ -38,12 +38,7 @@ gulp.task('serve', function() {
   gulp.watch('./src/**/*.js', ['build']);
   gulp.watch('./stylus/**/*.styl', ['stylus']);
   $.nodemon({
-    script: 'dist/server.js',
-	env: { 
-		'NODE_ENV': 'development',
-		'MAIL_KEY': '***REMOVED***',
-		'MAIL_SECRET': '***REMOVED***'
-	}
+    script: 'dist/server.js'
 //    exec: './node_modules/.bin/babel-node',
 //    ignore: ['gulpfile.js', 'node_modules', 'test']
   });
